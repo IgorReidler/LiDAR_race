@@ -8,7 +8,8 @@ SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
 player_width = 50
 player_height = 100
-steering_speed = 10
+STEERING_SPEED=14
+SPEED=2
 
 pygame.init()
 
@@ -41,8 +42,6 @@ road_width =SCREEN_WIDTH // 4
 road_height = SCREEN_HEIGHT * 2
 road_x =SCREEN_WIDTH // 2 - road_width // 2
 road_y = -road_height + player_y + player_height + 10
-road_speed = steering_speed
-
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("LiDAR race")
@@ -72,9 +71,9 @@ while running:
     # Move the player left or right
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
-        player_x -= steering_speed
+        player_x -= STEERING_SPEED
     if keys[pygame.K_RIGHT]:# and player_x < lanes[-1].x + lanes[-1].width - player_width:
-        player_x += steering_speed
+        player_x += STEERING_SPEED
     
     #display text
     font = pygame.font.Font(None, 24)
@@ -82,14 +81,14 @@ while running:
     textpos_fps = text_fps.get_rect(centery=70, centerx=70)
 
     # Move the road down
-    road_y += road_speed
+    road_y += SPEED
     # print('road y='+str(road_y))
     # If the road goes off screen, reset it to the top of the screen and randomize the obstacles
     if road_y > SCREEN_HEIGHT:
         road_y = -road_height + player_y + player_height + 10
     
     #update y of the road map
-    all_sprites_1.update()
+    all_sprites_1.update(SPEED)
     
     # Draw everything on the screen
     screen.fill((255, 255, 255))

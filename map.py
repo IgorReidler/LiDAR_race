@@ -7,8 +7,8 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
-    def update(self):
-        self.rect.y+=1
+    def update(self,road_speed):
+        self.rect.y+=road_speed
 
 # Define some constants
 tile_width = 400
