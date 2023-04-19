@@ -33,7 +33,6 @@ pygame.display.set_caption("LiDAR race")
 # Set up the clock
 clock = pygame.time.Clock()
 
-
 # Set up the lanes
 # lanes = []
 # for i in range(4):
