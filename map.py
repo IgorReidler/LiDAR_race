@@ -25,4 +25,4 @@ map_2 = map_1
 
 # Load your images
 map_1_tiles = [r'media/grass_left.png', r'media/lane.png', r'media/grass_right.png']
-map_2_tiles = [r'media/grass_left.png', r'media/lane.png', r'media/grass_right.png']
+map_2_tiles = [r'media/grass_left_lidar.png', r'media/lane.png', r'media/grass_right.png']
