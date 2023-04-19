@@ -5,15 +5,32 @@ import sys
 
 # Define screen size
 SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
+SCREEN_HEIGHT = 600
 player_width = 50
 player_height = 100
 steering_speed = 10
 
-# init map
-myMap = map.Map(SCREEN_WIDTH, SCREEN_HEIGHT)
-
 pygame.init()
+
+# Set up the map
+images_1 = []
+for tile in map.map_1_tiles:
+    images_1.append(pygame.image.load(tile))
+
+# images_2 = []
+# for tile in map_2_tiles:
+#     images_2.append(pygame.image.load(tile))
+
+# Create your sprite groups
+all_sprites_1 = pygame.sprite.Group()
+# all_sprites_2 = pygame.sprite.Group()
+
+# Iterate over each element of the matrix and create a sprite for each element
+for row in range(len(map.map_1)):
+    for col in range(len(map.map_1[row])):
+        tile = map.Tile(col, row, images_1[map.map_1[row][col]-1],map.tile_width,map.tile_height)
+        all_sprites_1.add(tile)
+
 
 # Set up the player
 player_x =SCREEN_WIDTH // 2 - player_width // 2
@@ -66,17 +83,18 @@ while running:
 
     # Move the road down
     road_y += road_speed
-    print('road y='+str(road_y))
+    # print('road y='+str(road_y))
     # If the road goes off screen, reset it to the top of the screen and randomize the obstacles
     if road_y > SCREEN_HEIGHT:
         road_y = -road_height + player_y + player_height + 10
-
+    
+    #update y of the road map
+    all_sprites_1.update()
+    
     # Draw everything on the screen
     screen.fill((255, 255, 255))
     # # Draw each sprite on the screen
-    # myMap.all_sprites_1.draw(screen)
-    # all_sprites_2.draw(screen)
-
+    all_sprites_1.draw(screen)
 
     # for lane in lanes:
     #     pygame.draw.rect(screen, (0, 0, 0), lane)
@@ -87,9 +105,7 @@ while running:
     screen.blit(text_fps, textpos_fps)
 
     # update road position
-    # myMap.all_sprites_1.update(road_x, road_y)
-    myMap.all_sprites_1.rect.y = road_y
-    myMap.all_sprites_1.draw(screen)
+    # all_sprites_1.update()
     
     # Update the screen
     pygame.display.flip()

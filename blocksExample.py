@@ -41,6 +41,7 @@ class Block(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
     def update(self):
         self.rect.y+=1
+        
 # Initialize Pygame
 pygame.init()
  
