@@ -36,9 +36,9 @@ all_sprites_2 = pygame.sprite.Group()
 # Iterate over each element of the matrix and create a sprite for each element
 for row in range(len(map.map_1)):
     for col in range(len(map.map_1[row])):
-        tile_1 = map.Tile(col, row, images_1[map.map_1[row][col]-1],map.tile_width,map.tile_height)
+        tile_1 = map.Tile(col, row, images_1[map.map_1[row][col]-1],map.tile_width,map.tile_height,SCREEN_WIDTH,SCREEN_HEIGHT)
         all_sprites_1.add(tile_1)
-        tile_2 = map.Tile(col, row, images_2[map.map_2[row][col]-1],map.tile_width,map.tile_height)
+        tile_2 = map.Tile(col, row, images_2[map.map_2[row][col]-1],map.tile_width,map.tile_height,SCREEN_WIDTH,SCREEN_HEIGHT)
         all_sprites_2.add(tile_2)
 
 # Set up the player
@@ -95,14 +95,9 @@ while running:
     textpos_fps = text_fps.get_rect(centery=70, centerx=70)
     screen.blit(text_fps, textpos_fps)
 
-    # Move the road down
-    road_y += SPEED
-    # If the road goes off screen, reset it to the top of the screen and randomize the obstacles
-    if road_y > SCREEN_HEIGHT:
-        road_y = -road_height + player_y + player_height + 10    
     #update y of the road map
-    all_sprites_1.update(SPEED)
-    all_sprites_2.update(SPEED)
+    all_sprites_1.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT)
+    all_sprites_2.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT)
 
     # Update the screen
     # pygame.display.flip() #probably not needed
@@ -111,3 +106,8 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+
+
+# If the image goes off the screen, reset its position
+    # if y > image.get_height():
+    #     y = 0 - screen.get_height()

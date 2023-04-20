@@ -1,20 +1,28 @@
 import pygame
 # Define your sprites
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, x, y, image,tile_width,tile_height):
+    def __init__(self, x, y, image,tile_width,tile_height,screen_width,screen_height):
         super().__init__()
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = x * tile_width
-        self.rect.y = y * tile_height
-    def update(self,road_speed):
+        self.rect.y = y * tile_height-1200
+    def update(self,road_speed, screen_width, screen_height):
         self.rect.y+=road_speed
-
+        # Move the road down
+        # road_y += SPEED
+        # If the road goes off screen, reset it to the top of the screen and randomize the obstacles
+        # for tile in all_sprites_1:
+        #     if tile.rect.y > SCREEN_HEIGHT:
+        # print(tile.rect.y)
+        if self.rect.y > screen_height:
+            self.rect.y += -screen_height    
 # Define some constants
 tile_width = 400
 tile_height = 400
 # Define your maps
 map_1 = [
+        [1,2,3],
         [1,2,3],
         [1,2,3],
         [1,2,3],
