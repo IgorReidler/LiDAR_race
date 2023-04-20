@@ -9,13 +9,12 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height + (screen_height-3*tile_height)
-        print("tile init y = "+str(self.rect.y))
-    def update(self,road_speed, screen_width, screen_height,tilesNum_height,speed):        
+    def update(self,road_speed, screen_width, screen_height,tilesNum_height,tile_height):        
         self.rect.y+=road_speed
         # If the road tile goes off screen, reset it to the top of all road tile sprites
         # print(self.rect.y)
         if self.rect.y > screen_height:
-            self.rect.y = screen_height - tile_height*tilesNum_height+math.ceil(speed)
+            self.rect.y = screen_height - tile_height*tilesNum_height+math.ceil(road_speed)
 
 # Define some constants
 tile_width = 400
