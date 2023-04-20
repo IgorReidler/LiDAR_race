@@ -1,7 +1,4 @@
 #TODO:
-#objects
-#lanes for the objects to move in
-#collision mechanism
 
 import pygame
 import map
@@ -13,7 +10,7 @@ import math
 pygame.init()
 
 # Define screen size
-FPS=60
+FPS=100
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 400
 DRIVE_WIDTH=600
@@ -24,7 +21,7 @@ PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
 STEERING_SPEED=11
-SPEED=3
+SPEED=1
 
 #init player
 player  = pygame.sprite.Group()
@@ -42,6 +39,10 @@ images_2 = []
 for tile in map.map_2_tiles:
     images_2.append(pygame.image.load(tile))
 
+# create an obstacle to cover grass
+grassLeft_obstacle_rect = pygame.Rect(0, 0, 300, SCREEN_HEIGHT)
+grassRight_obstacle_rect = pygame.Rect(900, 0, 300, SCREEN_HEIGHT)
+
 # Create your sprite groups
 all_sprites_1 = pygame.sprite.Group()
 all_sprites_2 = pygame.sprite.Group()
@@ -58,7 +59,7 @@ block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
 block_list = pygame.sprite.Group()
 
 #create 5 blocks
-for i in range(50):
+for i in range(10):
     # This represents a block
     block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
  
@@ -126,7 +127,9 @@ while running:
     if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
         print("collision")
         # running = False
-    # my special comment
+    if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x, player.rect.y):
+        print("Grass collision detected!")
+
     # Update the display and tick the clock
     pygame.display.update()
     clock.tick(FPS)
