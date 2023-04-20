@@ -1,5 +1,4 @@
 #TODO:
-#infinite map scroll
 #objects
 #lanes for the objects to move in
 #collision mechanism
@@ -10,7 +9,7 @@ import math
 pygame.init()
 
 # Define screen size
-FPS=60
+FPS=120
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
 TILE_WIDTH=400
@@ -19,9 +18,6 @@ player_width = 36
 player_height = 88
 STEERING_SPEED=11
 SPEED=2
-tilesNum_width=SCREEN_WIDTH/TILE_WIDTH
-tilesNum_height=math.ceil(SCREEN_HEIGHT/TILE_HEIGHT)+1
-print(tilesNum_height)
 
 #init player
 player  = pygame.sprite.Group()
@@ -64,15 +60,6 @@ pygame.display.set_caption("LiDAR race")
 # Set up the clock
 clock = pygame.time.Clock()
 
-# Set up the lanes
-# lanes = []
-# for i in range(4):
-#     lane_x = i * road_width + road_x
-#     lane_y = road_y + road_height // 4 * i
-#     lane_width = road_width
-#     lane_height = road_height // 4
-#     lanes.append(pygame.Rect(lane_x, lane_y, lane_width, lane_height))
-
 # Main loop
 running = True
 while running:
@@ -103,22 +90,13 @@ while running:
     textpos_fps = text_fps.get_rect(centery=70, centerx=70)
     screen.blit(text_fps, textpos_fps)
 
-    # print y
-    # print(all_sprites_1.rect.y)
-
     #update y of the road map
-    all_sprites_1.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT)
-    all_sprites_2.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT)
+    all_sprites_1.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_1))
+    all_sprites_2.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2))
 
     # Update the screen
-    # pygame.display.flip() #probably not needed
     # Update the display and tick the clock
     pygame.display.update()
     clock.tick(FPS)
 
 pygame.quit()
-
-
-# If the image goes off the screen, reset its position
-    # if y > image.get_height():
-    #     y = 0 - screen.get_height()

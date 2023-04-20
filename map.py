@@ -8,14 +8,13 @@ class Tile(pygame.sprite.Sprite):
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height + (screen_height-3*tile_height)
         print("tile init y = "+str(self.rect.y))
-    def update(self,road_speed, screen_width, screen_height):        
-        # If the road goes off screen, reset it to the top of the screen and randomize the obstacles
+    def update(self,road_speed, screen_width, screen_height,tilesNum_height):        
+        self.rect.y+=road_speed
+        # If the road tile goes off screen, reset it to the top of all road tile sprites
         # print(self.rect.y)
         if self.rect.y > screen_height:
-            self.rect.y = screen_height - tile_height*4
-            print("moved tile to y="+str(self.rect.y))
-        self.rect.y+=road_speed
-            # self.rect.y -= tile_height*
+            self.rect.y = screen_height - tile_height*tilesNum_height+2
+
 # Define some constants
 tile_width = 400
 tile_height = 400
