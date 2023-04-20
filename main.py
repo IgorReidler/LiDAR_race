@@ -11,13 +11,13 @@ pygame.init()
 # Define screen size
 FPS=120
 SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 600
+SCREEN_HEIGHT = 900
 TILE_WIDTH=400
 TILE_HEIGHT=400
 player_width = 36
 player_height = 88
 STEERING_SPEED=11
-SPEED=2
+SPEED=5
 
 #init player
 player  = pygame.sprite.Group()
@@ -91,8 +91,8 @@ while running:
     screen.blit(text_fps, textpos_fps)
 
     #update y of the road map
-    all_sprites_1.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_1))
-    all_sprites_2.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2))
+    all_sprites_1.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_1),SPEED)
+    all_sprites_2.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),SPEED)
 
     # Update the screen
     # Update the display and tick the clock
