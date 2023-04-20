@@ -6,17 +6,16 @@ class Tile(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = x * tile_width
-        self.rect.y = y * tile_height-1200
-    def update(self,road_speed, screen_width, screen_height):
-        self.rect.y+=road_speed
-        # Move the road down
-        # road_y += SPEED
+        self.rect.y = y * tile_height + (screen_height-3*tile_height)
+        print("tile init y = "+str(self.rect.y))
+    def update(self,road_speed, screen_width, screen_height):        
         # If the road goes off screen, reset it to the top of the screen and randomize the obstacles
-        # for tile in all_sprites_1:
-        #     if tile.rect.y > SCREEN_HEIGHT:
-        # print(tile.rect.y)
+        # print(self.rect.y)
         if self.rect.y > screen_height:
-            self.rect.y += -screen_height    
+            self.rect.y = screen_height - tile_height*4
+            print("moved tile to y="+str(self.rect.y))
+        self.rect.y+=road_speed
+            # self.rect.y -= tile_height*
 # Define some constants
 tile_width = 400
 tile_height = 400
@@ -26,11 +25,10 @@ map_1 = [
         [1,2,3],
         [1,2,3],
         [1,2,3],
-        [1,2,3],
 ]
 
 map_2 = map_1
 
 # Load your images
-map_1_tiles = [r'media/grass_left.png', r'media/lane.png', r'media/grass_right.png']
+map_1_tiles = [r'media/grass_left_marked.png', r'media/lane.png', r'media/grass_right.png']
 map_2_tiles = [r'media/grass_left_lidar.png', r'media/lane.png', r'media/grass_right.png']

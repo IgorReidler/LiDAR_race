@@ -6,16 +6,23 @@
 
 import pygame
 import map
-
+import math
 pygame.init()
 
 # Define screen size
+FPS=60
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
+TILE_WIDTH=400
+TILE_HEIGHT=400
 player_width = 36
 player_height = 88
 STEERING_SPEED=11
 SPEED=2
+tilesNum_width=SCREEN_WIDTH/TILE_WIDTH
+tilesNum_height=math.ceil(SCREEN_HEIGHT/TILE_HEIGHT)+1
+print(tilesNum_height)
+
 #init player
 player  = pygame.sprite.Group()
 player_image = pygame.image.load(r'media/ego_vehicle.png')
@@ -86,7 +93,8 @@ while running:
     # Draw white fill on the screen
     screen.fill((255, 255, 255))
     # Draw map tile list
-    all_sprites_2.draw(screen)
+    all_sprites_1.draw(screen)
+
     # draw the player car
     screen.blit(player.image, (player_x, player_y))
     # text display
@@ -94,6 +102,9 @@ while running:
     text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (0, 0, 0))
     textpos_fps = text_fps.get_rect(centery=70, centerx=70)
     screen.blit(text_fps, textpos_fps)
+
+    # print y
+    # print(all_sprites_1.rect.y)
 
     #update y of the road map
     all_sprites_1.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT)
@@ -103,7 +114,7 @@ while running:
     # pygame.display.flip() #probably not needed
     # Update the display and tick the clock
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(FPS)
 
 pygame.quit()
 
