@@ -20,8 +20,9 @@ PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
-STEERING_SPEED=11
-SPEED=1
+STEERING_SPEED=7
+SPEED=3
+NUM_OBSTACLES=3
 
 #init player
 player  = pygame.sprite.Group()
@@ -59,7 +60,7 @@ block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
 block_list = pygame.sprite.Group()
 
 #create 5 blocks
-for i in range(10):
+for i in range(NUM_OBSTACLES):
     # This represents a block
     block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
  
@@ -82,6 +83,10 @@ road_y = -road_height + player_y + PLAYER_HEIGHT + 10
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("LiDAR race")
+
+# Load and play music
+pygame.mixer.music.load(r'media/raceGame1.mp3')
+pygame.mixer.music.play(-1)
 
 # Set up the clock
 clock = pygame.time.Clock()
@@ -136,4 +141,5 @@ while running:
     pygame.display.update()
     clock.tick(FPS)
 
+pygame.mixer.music.stop()
 pygame.quit()

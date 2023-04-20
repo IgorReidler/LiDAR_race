@@ -15,7 +15,9 @@ def gameOver(screen):
     screen.blit(text2, textRect2)
     # Update the display
     pygame.display.flip()
+    #stop the music
+    pygame.mixer.music.stop()
     # Load and play sound
     gameOverSound = pygame.mixer.Sound('media/game-over-38511.mp3')
     gameOverSound.play()
-    time.sleep(3)
+    time.sleep(4)
