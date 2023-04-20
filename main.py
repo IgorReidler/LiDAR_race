@@ -6,7 +6,7 @@ import map
 import obstacles
 import random
 import math
-
+import common
 pygame.init()
 
 # Define screen size
@@ -125,10 +125,12 @@ while running:
     block_list.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
 
     if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
-        print("collision")
-        # running = False
+        common.gameOver(screen)
+        running = False
+
     if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x, player.rect.y):
-        print("Grass collision detected!")
+        common.gameOver(screen)
+        running = False
 
     # Update the display and tick the clock
     pygame.display.update()
