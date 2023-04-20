@@ -8,6 +8,7 @@ import map
 # import math
 import obstacles
 import random
+import math
 
 pygame.init()
 
@@ -15,6 +16,7 @@ pygame.init()
 FPS=60
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 400
+DRIVE_WIDTH=600
 TILE_WIDTH=400
 TILE_HEIGHT=400
 PLAYER_WIDTH = 36
@@ -22,7 +24,7 @@ PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
 STEERING_SPEED=11
-SPEED=1
+SPEED=3
 
 #init player
 player  = pygame.sprite.Group()
@@ -56,13 +58,13 @@ block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
 block_list = pygame.sprite.Group()
 
 #create 5 blocks
-for i in range(5):
+for i in range(50):
     # This represents a block
     block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
  
     # Set a random location for the block
-    block.rect.x = random.randrange(SCREEN_WIDTH)
-    block.rect.y = random.randrange(SCREEN_HEIGHT)
+    block.rect.x = random.randrange(DRIVE_WIDTH-BLOCK_WIDTH)+math.ceil((SCREEN_WIDTH-DRIVE_WIDTH)/2)
+    block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
  
     # Add the block to the list of objects
     block_list.add(block)
@@ -119,11 +121,11 @@ while running:
     all_sprites_2.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),TILE_HEIGHT)
 
     block_list.draw(screen)
-    block_list.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1))
+    block_list.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
 
     if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
         print("collision")
-        running = False
+        # running = False
     # my special comment
     # Update the display and tick the clock
     pygame.display.update()

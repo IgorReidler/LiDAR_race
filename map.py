@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 # Define your sprites
 class Tile(pygame.sprite.Sprite):
@@ -14,7 +15,8 @@ class Tile(pygame.sprite.Sprite):
         # If the road tile goes off screen, reset it to the top of all road tile sprites
         # print(self.rect.y)
         if self.rect.y > screen_height:
-            self.rect.y = screen_height - tile_height*tilesNum_height+math.ceil(road_speed)
+            self.rect.y = screen_height - tile_height*tilesNum_height#+math.ceil(road_speed)+20
+            
 
 # Define some constants
 tile_width = 400
