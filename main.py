@@ -145,7 +145,7 @@ while running:
                 running = False
     # Get key press
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_r] and moving == False:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
+    if (keys[pygame.K_SPACE] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_UP]) and moving == False:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
         print("R pressed")
         moving = True
         pygame.mixer.music.unpause()
@@ -187,8 +187,8 @@ while running:
         if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
             common.gameOver(screen)
             running = False
-
-        if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x, player.rect.y):
+        #check collision with right and left grass
+        if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y): #-5 to tune to grass collision
             common.gameOver(screen)
             running = False
     
