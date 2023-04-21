@@ -39,6 +39,13 @@ import math
 import common
 pygame.init()
 
+#Rotate car.
+def rot_center(image, rect, angle):
+        """rotate an image while keeping its center"""
+        rot_image = pygame.transform.rotate(image, angle)
+        rot_rect = rot_image.get_rect(center=rect.center)
+        return rot_image,rot_rect
+
 # Define screen size
 FPS=100
 SCREEN_WIDTH = 1200
@@ -54,6 +61,9 @@ STEERING_SPEED=6
 VEHICLES_SPEED=3
 ROAD_SPEED=5
 NUM_OBSTACLES=4
+#player angle 
+player_angle = 0
+player_angle_change = 0
 
 #init player
 player  = pygame.sprite.Group()
@@ -132,7 +142,9 @@ pygame.mixer.music.pause()
 
 # Set up the clock
 clock = pygame.time.Clock()
-
+# player.image = pygame.transform.rotate(player.image, 45)
+# player.image, player.rect = rot_center(player.image, player.rect, 45)
+# player.rect = player.image.get_rect()
 # Main loop
 running = True
 moving = False
@@ -143,6 +155,15 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                 running = False
+            if event.key == pygame.K_LEFT:
+                player_angle_change = 0.2
+            elif event.key == pygame.K_RIGHT:
+                player_angle_change = -0.2
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT and player_angle_change > 0:
+                player_angle_change = 0
+            elif event.key == pygame.K_RIGHT and player_angle_change < 0:
+                player_angle_change = 0
     # Get key press
     keys = pygame.key.get_pressed()
     if (keys[pygame.K_SPACE] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_UP]) and moving == False:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
@@ -173,6 +194,9 @@ while running:
     pygame.display.update()
 
     if moving:        
+        player_angle += player_angle_change
+        # player.image = pygame.transform.rotate(player.image, player_angle)
+
         #update y of the road map
         all_sprites_1.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_1),TILE_HEIGHT)
         all_sprites_2.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),TILE_HEIGHT)
@@ -196,4 +220,7 @@ while running:
     # Update the display and tick the clock
     pygame.display.update()
     clock.tick(FPS)
+    print("player angle = "+str(player_angle))
+    print("player angle change = "+str(player_angle_change))
+
 pygame.quit()
