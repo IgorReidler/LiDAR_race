@@ -1,9 +1,39 @@
+#The MIT License (MIT)
+
+#Copyright (c) 2012 Robin Duda, (chilimannen)
+
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+
+#The above copyright notice and this permission notice shall be included in
+#all copies or substantial portions of the Software.
+
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#THE SOFTWARE.
+
+#Camera module will keep track of sprite offset.
+
 #TODO:
+#create a moving loop inside running, all logistics outside of moving. All speed, steering etc.. inside
+#Pressing key_up starts moving
+#rotate player when steering
+#move camera when steering
+#obstacles: EU pallette, cone (with blooming!)
+#randomize obstacles, each gets size from the images
+# changing lighting throughout the day
+#Start menu, restart menu
 
 import pygame
-import map
-# import math
-import obstacles
+import map, obstacles
 import random
 import math
 import common
@@ -20,9 +50,10 @@ PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
-STEERING_SPEED=7
-SPEED=3
-NUM_OBSTACLES=3
+STEERING_SPEED=6
+VEHICLES_SPEED=3
+ROAD_SPEED=5
+NUM_OBSTACLES=4
 
 #init player
 player  = pygame.sprite.Group()
@@ -31,7 +62,13 @@ player.image=player_image
 player.rect = player.image.get_rect()
 player.rect.x=SCREEN_WIDTH/2
 player.rect.y=SCREEN_HEIGHT - PLAYER_HEIGHT - 10
-
+#init menus
+start_menu  = pygame.sprite.Group()
+start_menu_image = pygame.image.load(r'media/menu.png')
+start_menu.image = start_menu_image
+start_menu.rect = player.image.get_rect()
+start_menu.rect.x=SCREEN_WIDTH/2-start_menu_image.get_width()/2
+start_menu.rect.y=SCREEN_HEIGHT/2-start_menu_image.get_height()/2
 # Set up the map
 images_1 = []
 for tile in map.map_1_tiles:
@@ -40,6 +77,8 @@ images_2 = []
 for tile in map.map_2_tiles:
     images_2.append(pygame.image.load(tile))
 
+# Load and play music
+pygame.mixer.music.load(r'media/raceGame1.mp3')
 # create an obstacle to cover grass
 grassLeft_obstacle_rect = pygame.Rect(0, 0, 300, SCREEN_HEIGHT)
 grassRight_obstacle_rect = pygame.Rect(900, 0, 300, SCREEN_HEIGHT)
@@ -63,11 +102,13 @@ block_list = pygame.sprite.Group()
 for i in range(NUM_OBSTACLES):
     # This represents a block
     block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
- 
+    block_image = pygame.image.load(r'media/vehicle2.png')
+    block.image=block_image
+
     # Set a random location for the block
     block.rect.x = random.randrange(DRIVE_WIDTH-BLOCK_WIDTH)+math.ceil((SCREEN_WIDTH-DRIVE_WIDTH)/2)
     block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
- 
+    
     # Add the block to the list of objects
     block_list.add(block)
 
@@ -87,33 +128,33 @@ pygame.display.set_caption("LiDAR race")
 # Load and play music
 pygame.mixer.music.load(r'media/raceGame1.mp3')
 pygame.mixer.music.play(-1)
+pygame.mixer.music.pause()
 
 # Set up the clock
 clock = pygame.time.Clock()
 
 # Main loop
 running = True
+moving = False
 while running:
-    # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                 running = False
-    # Move the player left or right
+    # Get key press
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
-        player.rect.x -= STEERING_SPEED
+    if keys[pygame.K_r] and moving == False:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
+        print("R pressed")
+        moving = True
+        pygame.mixer.music.unpause()
         # player.rect.x = player_x
-    if keys[pygame.K_RIGHT]:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
-        player.rect.x += STEERING_SPEED
-        # player.rect.x = player_x
+    # Handle events
     # Draw white fill on the screen
     screen.fill((255, 255, 255))
     # Draw map tile list
     all_sprites_1.draw(screen)
-
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
@@ -122,24 +163,37 @@ while running:
     textpos_fps = text_fps.get_rect(centery=70, centerx=70)
     screen.blit(text_fps, textpos_fps)
 
-    #update y of the road map
-    all_sprites_1.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_1),TILE_HEIGHT)
-    all_sprites_2.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),TILE_HEIGHT)
 
     block_list.draw(screen)
-    block_list.update(SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
+    
+    if moving == False:
+        # draw menu
+        screen.blit(start_menu.image, (start_menu.rect.x, start_menu.rect.y))
+    # update the display
+    pygame.display.update()
 
-    if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
-        common.gameOver(screen)
-        running = False
+    if moving:        
+        #update y of the road map
+        all_sprites_1.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_1),TILE_HEIGHT)
+        all_sprites_2.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),TILE_HEIGHT)
+        block_list.update(VEHICLES_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
+        # steer the player car with left and right arrows
+        if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
+            player.rect.x -= STEERING_SPEED
+            # player.rect.x = player_x
+        if keys[pygame.K_RIGHT]:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
+            player.rect.x += STEERING_SPEED
 
-    if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x, player.rect.y):
-        common.gameOver(screen)
-        running = False
+        if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
+            common.gameOver(screen)
+            running = False
 
+        if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x, player.rect.y):
+            common.gameOver(screen)
+            running = False
+    
+    screen.blit(text_fps, textpos_fps)
     # Update the display and tick the clock
     pygame.display.update()
     clock.tick(FPS)
-
-pygame.mixer.music.stop()
 pygame.quit()
