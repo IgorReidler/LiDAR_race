@@ -7,7 +7,8 @@ class Obstacle(pygame.sprite.Sprite):
         super().__init__()
         # speed delta init
         self.speedDelta = speedDelta
-        self.image = pygame.image.load(r'media/vehicle2.png')
+        vehicle_images = [r'media/vehicle1.png', r'media/vehicle2.png']
+        self.image = pygame.image.load(vehicle_images[random.randint(0,len(vehicle_images)-1)])
         self.rect = self.image.get_rect()
         self.lateralDir=random.randint(0, 1) * 2 - 1
     def update(self,vehicle_speed, lateral_chance,screen_height,tile_height,tilesNum_height,obstacle_height,obstacle_width,drive_width):        
