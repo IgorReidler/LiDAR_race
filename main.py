@@ -26,8 +26,7 @@
 #rotate player when steering - too hard
 #move camera when steering
 #obstacles: EU pallette, cone (with blooming!)
-#randomize obstacles, each gets size from the images
-#different speeds of cars
+#randomize obstacle images
 #cars only drive in lanes
 # changing lighting throughout the day
 #Start menu, restart menu
@@ -51,7 +50,7 @@ FPS=100
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 400
 DRIVE_WIDTH=600
-TILE_WIDTH=400
+# TILE_WIDTH=400
 TILE_HEIGHT=400
 PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 88
@@ -84,9 +83,9 @@ start_menu.rect.y=SCREEN_HEIGHT/2-start_menu_image.get_height()/2
 images_1 = []
 for tile in map.map_1_tiles:
     images_1.append(pygame.image.load(tile))
-images_2 = []
-for tile in map.map_2_tiles:
-    images_2.append(pygame.image.load(tile))
+# images_2 = []
+# for tile in map.map_2_tiles:
+#     images_2.append(pygame.image.load(tile))
 
 # Load and play music
 pygame.mixer.music.load(r'media/raceGame1.mp3')
@@ -96,15 +95,17 @@ grassRight_obstacle_rect = pygame.Rect(900, 0, 300, SCREEN_HEIGHT)
 
 # Create your sprite groups
 all_sprites_1 = pygame.sprite.Group()
-all_sprites_2 = pygame.sprite.Group()
+# all_sprites_2 = pygame.sprite.Group()
 
 # Iterate over each element of the matrix and create a sprite for each element
 for row in range(len(map.map_1)):
+    currentWidth=0
     for col in range(len(map.map_1[row])):
-        tile_1 = map.Tile(col, row, images_1[map.map_1[row][col]-1],map.tile_width,map.tile_height,SCREEN_WIDTH,SCREEN_HEIGHT)
+        tile_1 = map.Tile(currentWidth, row, images_1[map.map_1[row][col]-1],SCREEN_HEIGHT) #xStart=currentWidth
+        currentWidth += tile_1.image.get_width()
         all_sprites_1.add(tile_1)
-        tile_2 = map.Tile(col, row, images_2[map.map_2[row][col]-1],map.tile_width,map.tile_height,SCREEN_WIDTH,SCREEN_HEIGHT)
-        all_sprites_2.add(tile_2)
+        # tile_2 = map.Tile(col, row, images_2[map.map_2[row][col]-1],map.tile_width,map.tile_height,SCREEN_WIDTH,SCREEN_HEIGHT)
+        # all_sprites_2.add(tile_2)
 # init a block obstacle
 block_list = pygame.sprite.Group()
 
@@ -194,8 +195,8 @@ while running:
         # player.image = pygame.transform.rotate(player.image, player_angle)
 
         #update y of the road map
-        all_sprites_1.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_1),TILE_HEIGHT)
-        all_sprites_2.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),TILE_HEIGHT)
+        all_sprites_1.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_1),TILE_HEIGHT)
+        # all_sprites_2.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),TILE_HEIGHT)
         block_list.update(VEHICLES_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
         # steer the player car with left and right arrows
         if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
