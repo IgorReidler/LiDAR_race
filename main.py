@@ -23,26 +23,29 @@
 #Camera module will keep track of sprite offset.
 
 #TODO:
-#rotate player when steering - too hard
-#move camera when steering
+#place trees
 #obstacles: EU pallette, cone (with blooming!)
 #randomize obstacle images
-#cars only drive in lanes
-# changing lighting throughout the day
-#Start menu, restart menu
+#move camera when steering
+#changing lighting throughout the day
+#start menu - Update and fix
+#option to restart game without re-launching
+
+#sprite editor: https://www.piskelapp.com/
 
 import pygame
 import map, obstacles
 import random
 import common
+
 pygame.init()
 
 #Rotate car.
-def rot_center(image, rect, angle):
-        """rotate an image while keeping its center"""
-        rot_image = pygame.transform.rotate(image, angle)
-        rot_rect = rot_image.get_rect(center=rect.center)
-        return rot_image,rot_rect
+# def rot_center(image, rect, angle):
+#         """rotate an image while keeping its center"""
+#         rot_image = pygame.transform.rotate(image, angle)
+#         rot_rect = rot_image.get_rect(center=rect.center)
+#         return rot_image,rot_rect
 
 # Define screen size
 GODMODE=False
