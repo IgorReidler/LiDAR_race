@@ -23,12 +23,12 @@
 #Camera module will keep track of sprite offset.
 
 #TODO:
-#create a moving loop inside running, all logistics outside of moving. All speed, steering etc.. inside
-#Pressing key_up starts moving
-#rotate player when steering
+#rotate player when steering - too hard
 #move camera when steering
 #obstacles: EU pallette, cone (with blooming!)
 #randomize obstacles, each gets size from the images
+#different speeds of cars
+#cars only drive in lanes
 # changing lighting throughout the day
 #Start menu, restart menu
 
@@ -61,6 +61,7 @@ STEERING_SPEED=6
 VEHICLES_SPEED=3
 ROAD_SPEED=5
 NUM_OBSTACLES=4
+
 #player angle 
 player_angle = 0
 player_angle_change = 0
@@ -105,20 +106,16 @@ for row in range(len(map.map_1)):
         tile_2 = map.Tile(col, row, images_2[map.map_2[row][col]-1],map.tile_width,map.tile_height,SCREEN_WIDTH,SCREEN_HEIGHT)
         all_sprites_2.add(tile_2)
 # init a block obstacle
-block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
 block_list = pygame.sprite.Group()
 
-#create 5 blocks
+#create 5 obstacles
 for i in range(NUM_OBSTACLES):
     # This represents a block
-    block = obstacles.Block((  0,   0,   0), BLOCK_WIDTH, BLOCK_HEIGHT)
-    block_image = pygame.image.load(r'media/vehicle2.png')
-    block.image=block_image
-
+    speedDelta=random.uniform(0, 1.5)
+    block = obstacles.Obstacle(speedDelta)
     # Set a random location for the block
     block.rect.x = random.randrange(DRIVE_WIDTH-BLOCK_WIDTH)+math.ceil((SCREEN_WIDTH-DRIVE_WIDTH)/2)
     block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
-    
     # Add the block to the list of objects
     block_list.add(block)
 
@@ -167,7 +164,6 @@ while running:
     # Get key press
     keys = pygame.key.get_pressed()
     if (keys[pygame.K_SPACE] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_UP]) and moving == False:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
-        print("R pressed")
         moving = True
         pygame.mixer.music.unpause()
         # player.rect.x = player_x
@@ -220,7 +216,7 @@ while running:
     # Update the display and tick the clock
     pygame.display.update()
     clock.tick(FPS)
-    print("player angle = "+str(player_angle))
-    print("player angle change = "+str(player_angle_change))
+    # print("player angle = "+str(player_angle))
+    # print("player angle change = "+str(player_angle_change))
 
 pygame.quit()
