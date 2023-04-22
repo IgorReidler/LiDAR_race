@@ -47,7 +47,7 @@ def rot_center(image, rect, angle):
 
 # Define screen size
 GODMODE=False
-FPS=100
+FPS=60
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 400
 DRIVE_WIDTH=600
@@ -60,7 +60,8 @@ BLOCK_HEIGHT=88
 STEERING_SPEED=6
 VEHICLES_SPEED=3
 ROAD_SPEED=5
-NUM_OBSTACLES=4
+LATERAL_CHANCE=0 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
+NUM_OBSTACLES=5
 
 #player angle 
 player_angle = 0
@@ -117,7 +118,7 @@ for i in range(NUM_OBSTACLES):
     block = obstacles.Obstacle(speedDelta)
     # Set a random location for the block
     # block.rect.x = random.randrange(DRIVE_WIDTH-BLOCK_WIDTH)+math.ceil((SCREEN_WIDTH-DRIVE_WIDTH)/2)
-    block.rect.x = random.randrange(0,4)*150+375-BLOCK_WIDTH/2
+    block.rect.x = random.randrange(0,4)*150+375-BLOCK_WIDTH/2+random.randint(-25,25)
     block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
     # Add the block to the list of objects
     block_list.add(block)
@@ -199,7 +200,7 @@ while running:
         #update y of the road map
         all_sprites_1.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_1),TILE_HEIGHT)
         # all_sprites_2.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),TILE_HEIGHT)
-        block_list.update(VEHICLES_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
+        block_list.update(VEHICLES_SPEED,LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
         # steer the player car with left and right arrows
         if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
             player.rect.x -= STEERING_SPEED
