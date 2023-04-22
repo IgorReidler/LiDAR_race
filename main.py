@@ -46,6 +46,7 @@ def rot_center(image, rect, angle):
         return rot_image,rot_rect
 
 # Define screen size
+GODMODE=False
 FPS=100
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 400
@@ -115,7 +116,8 @@ for i in range(NUM_OBSTACLES):
     speedDelta=random.uniform(0, 1.5)
     block = obstacles.Obstacle(speedDelta)
     # Set a random location for the block
-    block.rect.x = random.randrange(DRIVE_WIDTH-BLOCK_WIDTH)+math.ceil((SCREEN_WIDTH-DRIVE_WIDTH)/2)
+    # block.rect.x = random.randrange(DRIVE_WIDTH-BLOCK_WIDTH)+math.ceil((SCREEN_WIDTH-DRIVE_WIDTH)/2)
+    block.rect.x = random.randrange(0,4)*150+375-BLOCK_WIDTH/2
     block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
     # Add the block to the list of objects
     block_list.add(block)
@@ -204,10 +206,10 @@ while running:
             # player.rect.x = player_x
         if keys[pygame.K_RIGHT]:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
             player.rect.x += STEERING_SPEED
-
-        if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
-            common.gameOver(screen)
-            running = False
+        if GODMODE==False:
+            if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
+                common.gameOver(screen)
+                running = False
         #check collision with right and left grass
         if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y): #-5 to tune to grass collision
             common.gameOver(screen)
