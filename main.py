@@ -49,7 +49,7 @@ pygame.init()
 
 # Define screen size
 GODMODE=False
-FPS=60
+FPS=100
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 400
 DRIVE_WIDTH=600
@@ -64,7 +64,7 @@ VEHICLES_SPEED=3
 ROAD_SPEED=5
 LATERAL_CHANCE=0 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
 NUM_OBSTACLES=5
-
+CAMALPHA=255
 #player angle 
 player_angle = 0
 player_angle_change = 0
@@ -91,29 +91,31 @@ grassLeft_obstacle_rect = pygame.Rect(0, 0, 300, SCREEN_HEIGHT)
 grassRight_obstacle_rect = pygame.Rect(900, 0, 300, SCREEN_HEIGHT)
 
 # Create your sprite groups
-map1_tiles = pygame.sprite.Group()
-# map2_tiles = pygame.sprite.Group()
+map_tiles_cam = pygame.sprite.Group()
+map_tiles_lidar = pygame.sprite.Group()
 
-#add all tiles to a map list called map1_tiles
-for row in range(len(map.map_1)):
+#add all tiles to a map list called map_tiles_cam
+for row in range(len(map.map_plan)):
     currentWidth=0
-    for col in range(len(map.map_1[row])):
-        tile_1 = map.Tile(currentWidth, row, map.map_1_tiles[map.map_1[row][col]-1],SCREEN_HEIGHT) #xStart=currentWidth
+    for col in range(len(map.map_plan[row])):
+        tile_1 = map.Tile(currentWidth, row, map.map_cam_tiles[map.map_plan[row][col]-1],SCREEN_HEIGHT) #xStart=currentWidth
+        tile_2 = map.Tile(currentWidth, row, map.map_lidar_tiles[map.map_plan[row][col]-1],SCREEN_HEIGHT) #xStart=currentWidth
         currentWidth += tile_1.image.get_width()
-        map1_tiles.add(tile_1)
+        map_tiles_cam.add(tile_1)
+        map_tiles_lidar.add(tile_2)
         #add trees
         if col==0:
             tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
-            map1_tiles.add(tree1)
-        # tile_2 = map.Tile(col, row, images_2[map.map_2[row][col]-1],map.tile_width,map.tile_height,SCREEN_WIDTH,SCREEN_HEIGHT)
-        # map2_tiles.add(tile_2)
+            map_tiles_cam.add(tree1)
+            tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
+            map_tiles_cam.add(tree1)
 # init a block obstacle
 block_list = pygame.sprite.Group()
 
 #create 5 obstacles
 for i in range(NUM_OBSTACLES):
     # This represents a block
-    speedDelta=random.uniform(0, 1.5)
+    speedDelta=random.uniform(0.7, 1.2) #random vehicle speed delta
     block = obstacles.Obstacle(speedDelta)
     # Set a random location for the block
     # block.rect.x = random.randrange(DRIVE_WIDTH-BLOCK_WIDTH)+math.ceil((SCREEN_WIDTH-DRIVE_WIDTH)/2)
@@ -148,6 +150,7 @@ clock = pygame.time.Clock()
 # Main loop
 running = True
 moving = False
+frameCount=0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -172,9 +175,10 @@ while running:
         # player.rect.x = player_x
     # Handle events
     # Draw white fill on the screen
-    screen.fill((255, 255, 255))
+    screen.fill((0, 0, 0))
     # Draw map tile list
-    map1_tiles.draw(screen)
+    # map_tiles_cam.draw(screen)
+    map_tiles_cam.draw(screen)
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
@@ -197,9 +201,11 @@ while running:
         # player.image = pygame.transform.rotate(player.image, player_angle)
 
         #update y of the road map
-        map1_tiles.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_1),TILE_HEIGHT)
-        # map2_tiles.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_2),TILE_HEIGHT)
-        block_list.update(VEHICLES_SPEED,LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_1),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
+        map_tiles_cam.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT,CAMALPHA) #Alpha 0-255
+        map_tiles_lidar.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT,255) #255=no darkening
+
+        # map_tiles_lidar.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT)
+        block_list.update(VEHICLES_SPEED,LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
         # steer the player car with left and right arrows
         if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
             player.rect.x -= STEERING_SPEED
@@ -221,5 +227,5 @@ while running:
     clock.tick(FPS)
     # print("player angle = "+str(player_angle))
     # print("player angle change = "+str(player_angle_change))
-
+    frameCount+=1
 pygame.quit()
