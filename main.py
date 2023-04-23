@@ -37,6 +37,8 @@ import pygame
 import map, obstacles
 import random
 import common
+import pygame.gfxdraw
+import math
 
 pygame.init()
 
@@ -176,9 +178,18 @@ while running:
     # Handle events
     # Draw white fill on the screen
     screen.fill((0, 0, 0))
-    # Draw map tile list
-    # map_tiles_cam.draw(screen)
+    
+
+    # Create a rectangle clipping mask
+    clip_rect = pygame.Rect(300, 100, 300, 100)
+    #draw the unclipped map
+    # draw the clipped map
     map_tiles_cam.draw(screen)
+    # Clip the entire screen with the rectangle clipping mask
+    screen.set_clip(clip_rect)
+    # draw the clipped map
+    map_tiles_lidar.draw(screen)
+    screen.set_clip(None) #remove the clipping mask
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
