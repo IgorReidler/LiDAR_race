@@ -30,7 +30,8 @@
 #changing lighting throughout the day
 #start menu - Update and fix
 #option to restart game without re-launching
-
+#all speeds relative to FPS like so: dt = clock.tick(60)
+# player.position.x += player.xSpeed * dt
 #sprite editor: https://www.piskelapp.com/
 
 import pygame
@@ -48,7 +49,7 @@ pygame.init()
 
 # Define screen size
 GODMODE=False
-FPS=60
+FPS=50
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
 DRIVE_WIDTH=600
@@ -114,10 +115,9 @@ for row in range(len(map.map_plan)):
             map_tiles_cam.add(tree1)
             tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
             map_tiles_cam.add(tree1)
-# init a block obstacle
+# init obstacle
 block_list = pygame.sprite.Group()
-
-#create 5 obstacles
+#create obstacles
 for i in range(NUM_OBSTACLES):
     # This represents a block
     speedDelta=random.uniform(0.7, 1.2) #random vehicle speed delta
@@ -148,13 +148,8 @@ pygame.mixer.music.pause()
 
 # Set up the clock
 clock = pygame.time.Clock()
-# player.image = pygame.transform.rotate(player.image, 45)
-# player.image, player.rect = rot_center(player.image, player.rect, 45)
-# player.rect = player.image.get_rect()
-# Main loop
 running = True
 moving = False
-frameCount=0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -183,10 +178,6 @@ while running:
         moving = True
         pygame.mixer.music.unpause()
         # player.rect.x = player_x
-    # Handle events
-    # Draw white fill on the screen
-    screen.fill((0, 0, 0))
-
     if lidar:
         #draw lidar map
         map_tiles_lidar.draw(screen)
@@ -194,16 +185,11 @@ while running:
         # draw cam map    
         map_tiles_cam.draw(screen)
 
-
-
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
     font = pygame.font.Font(None, 24)
     text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
-    textpos_fps = text_fps.get_rect(centery=70, centerx=70)
-    screen.blit(text_fps, textpos_fps)
-
 
     #mask by arc
     block_list.draw(screen)
@@ -212,21 +198,14 @@ while running:
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx-ARCWIDTH/2-600, 0, 600, 600))
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx+ARCWIDTH/2, 0, 600, 600))
         
-    
     if moving == False:
         # draw menu
         screen.blit(start_menu.image, (start_menu.rect.x, start_menu.rect.y))
-    # update the display
-    pygame.display.update()
-
-    if moving:        
+    else:        
         player_angle += player_angle_change
-        # player.image = pygame.transform.rotate(player.image, player_angle)
-
         #update y of the road map
         map_tiles_cam.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT,CAMALPHA) #Alpha 0-255
         map_tiles_lidar.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT,255) #255=no darkening
-
         # map_tiles_lidar.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT)
         block_list.update(VEHICLES_SPEED,LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH,lidar)
         # steer the player car with left and right arrows
@@ -244,11 +223,8 @@ while running:
             common.gameOver(screen)
             running = False
     
-    screen.blit(text_fps, textpos_fps)
+    screen.blit(text_fps, (70,70))
     # Update the display and tick the clock
     pygame.display.update()
     clock.tick(FPS)
-    # print("player angle = "+str(player_angle))
-    # print("player angle change = "+str(player_angle_change))
-    frameCount+=1
 pygame.quit()
