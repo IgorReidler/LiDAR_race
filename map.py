@@ -34,5 +34,5 @@ map_plan = [
 
 # Load your images
 map_cam_tiles = [r'media/grass_left.png', r'media/lane_marks.png', r'media/lane_empty.png',r'media/grass_right.png']
-map_lidar_tiles = [r'media/grass_left.png', r'media/lane_marks_lidar.png', r'media/lane_empty.png',r'media/grass_right.png']
+map_lidar_tiles = [r'media/grass_left_lidar.png', r'media/lane_marks_lidar.png', r'media/lane_empty.png',r'media/grass_right_lidar.png']
 tree_images = [r'media/OPENGAMEART_TREE1.png']

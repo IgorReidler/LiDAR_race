@@ -37,9 +37,6 @@ import pygame
 import map, obstacles
 import random
 import common
-import pygame.gfxdraw
-import math
-
 pygame.init()
 
 #Rotate car.
@@ -51,9 +48,9 @@ pygame.init()
 
 # Define screen size
 GODMODE=False
-FPS=100
+FPS=60
 SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 400
+SCREEN_HEIGHT = 600
 DRIVE_WIDTH=600
 # TILE_WIDTH=400
 TILE_HEIGHT=400
@@ -61,15 +58,21 @@ PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
-STEERING_SPEED=6
-VEHICLES_SPEED=3
-ROAD_SPEED=5
+STEERING_SPEED=9
+VEHICLES_SPEED=5
+ROAD_SPEED=7
 LATERAL_CHANCE=0 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
 NUM_OBSTACLES=5
 CAMALPHA=255
+ARCWIDTH=900
+lidar=False
 #player angle 
 player_angle = 0
 player_angle_change = 0
+
+arcImage = pygame.image.load(r'media/arcMask1.png')
+arcImage600 = pygame.transform.scale(arcImage, (900,600))
+arcImage600_rect=(150,0)
 
 #init player
 player  = pygame.sprite.Group()
@@ -120,7 +123,6 @@ for i in range(NUM_OBSTACLES):
     speedDelta=random.uniform(0.7, 1.2) #random vehicle speed delta
     block = obstacles.Obstacle(speedDelta)
     # Set a random location for the block
-    # block.rect.x = random.randrange(DRIVE_WIDTH-BLOCK_WIDTH)+math.ceil((SCREEN_WIDTH-DRIVE_WIDTH)/2)
     block.rect.x = random.randrange(0,4)*150+375-BLOCK_WIDTH/2+random.randint(-25,25)
     block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
     # Add the block to the list of objects
@@ -160,6 +162,12 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                 running = False
+            if event.key == pygame.K_l and lidar==False:
+                lidar=True
+                break
+            if event.key == pygame.K_l and lidar==True:
+                lidar=False
+                break
             if event.key == pygame.K_LEFT:
                 player_angle_change = 0.2
             elif event.key == pygame.K_RIGHT:
@@ -178,28 +186,32 @@ while running:
     # Handle events
     # Draw white fill on the screen
     screen.fill((0, 0, 0))
-    
 
-    # # Create a rectangle clipping mask
-    # clip_rect = pygame.Rect(300, 100, 300, 100)
-    # #draw the unclipped map
-    # # draw the clipped map
-    # map_tiles_cam.draw(screen)
-    # # Clip the entire screen with the rectangle clipping mask
-    # screen.set_clip(clip_rect)
-    # # draw the clipped map
-    map_tiles_cam.draw(screen)
-    # screen.set_clip(None) #remove the clipping mask
+    if lidar:
+        #draw lidar map
+        map_tiles_lidar.draw(screen)
+    else:
+        # draw cam map    
+        map_tiles_cam.draw(screen)
+
+
+
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
     font = pygame.font.Font(None, 24)
-    text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (0, 0, 0))
+    text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
     textpos_fps = text_fps.get_rect(centery=70, centerx=70)
     screen.blit(text_fps, textpos_fps)
 
 
+    #mask by arc
     block_list.draw(screen)
+    if lidar:
+        screen.blit(arcImage600,(player.rect.centerx-ARCWIDTH/2, arcImage600_rect[1]),special_flags=pygame.BLEND_RGBA_MIN)
+        pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx-ARCWIDTH/2-600, 0, 600, 600))
+        pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx+ARCWIDTH/2, 0, 600, 600))
+        
     
     if moving == False:
         # draw menu
@@ -216,7 +228,7 @@ while running:
         map_tiles_lidar.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT,255) #255=no darkening
 
         # map_tiles_lidar.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT)
-        block_list.update(VEHICLES_SPEED,LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH)
+        block_list.update(VEHICLES_SPEED,LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH,lidar)
         # steer the player car with left and right arrows
         if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
             player.rect.x -= STEERING_SPEED
