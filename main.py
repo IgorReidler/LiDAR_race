@@ -180,16 +180,16 @@ while running:
     screen.fill((0, 0, 0))
     
 
-    # Create a rectangle clipping mask
-    clip_rect = pygame.Rect(300, 100, 300, 100)
-    #draw the unclipped map
-    # draw the clipped map
+    # # Create a rectangle clipping mask
+    # clip_rect = pygame.Rect(300, 100, 300, 100)
+    # #draw the unclipped map
+    # # draw the clipped map
+    # map_tiles_cam.draw(screen)
+    # # Clip the entire screen with the rectangle clipping mask
+    # screen.set_clip(clip_rect)
+    # # draw the clipped map
     map_tiles_cam.draw(screen)
-    # Clip the entire screen with the rectangle clipping mask
-    screen.set_clip(clip_rect)
-    # draw the clipped map
-    map_tiles_lidar.draw(screen)
-    screen.set_clip(None) #remove the clipping mask
+    # screen.set_clip(None) #remove the clipping mask
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
