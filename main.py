@@ -38,8 +38,11 @@ import pygame
 import map, obstacles
 import random
 import common
+import math
 pygame.init()
 
+from pygame.locals import *
+flags = FULLSCREEN
 #Rotate car.
 # def rot_center(image, rect, angle):
 #         """rotate an image while keeping its center"""
@@ -49,9 +52,9 @@ pygame.init()
 
 # Define screen size
 GODMODE=False
-FPS=50
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 600
+FPS=60
+SCREEN_WIDTH = 1200 #1920
+SCREEN_HEIGHT = 600 #1080
 DRIVE_WIDTH=600
 # TILE_WIDTH=400
 TILE_HEIGHT=400
@@ -59,13 +62,14 @@ PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
-STEERING_SPEED=9
-VEHICLES_SPEED=5
-ROAD_SPEED=7
 LATERAL_CHANCE=0 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
-NUM_OBSTACLES=5
 CAMALPHA=255
 ARCWIDTH=900
+#fps related
+NUM_OBSTACLES=int(5*50/FPS)
+STEERING_SPEED=int(9*50/FPS)
+VEHICLES_SPEED=int(5*50/FPS)
+ROAD_SPEED=int(7*50/FPS)
 lidar=False
 #player angle 
 player_angle = 0
@@ -138,7 +142,8 @@ road_height = SCREEN_HEIGHT * 2
 road_x =SCREEN_WIDTH // 2 - road_width // 2
 road_y = -road_height + player_y + PLAYER_HEIGHT + 10
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+# screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.FULLSCREEN)
 pygame.display.set_caption("LiDAR race")
 
 # Load and play music
