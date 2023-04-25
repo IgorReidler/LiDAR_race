@@ -20,8 +20,8 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-#Camera module will keep track of sprite offset.
 
+# object types: Vehicles, map_tlies, player, trees, obstacles
 #TODO:
 #place trees
 #obstacles: EU pallette, cone (with blooming!)
@@ -52,7 +52,7 @@ flags = FULLSCREEN
 
 # Define screen size
 GODMODE=False
-FPS=60
+FPS=45
 SCREEN_WIDTH = 1200 #1920
 SCREEN_HEIGHT = 600 #1080
 DRIVE_WIDTH=600
@@ -62,14 +62,18 @@ PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
-LATERAL_CHANCE=0 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
+LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
 CAMALPHA=255
 ARCWIDTH=900
 #fps related
-NUM_OBSTACLES=int(5*50/FPS)
+SPEED_FACTOR=1.5
+NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
 STEERING_SPEED=int(9*50/FPS)
-VEHICLES_SPEED=int(5*50/FPS)
-ROAD_SPEED=int(7*50/FPS)
+VEHICLES_SPEED=int(5*50/FPS*SPEED_FACTOR)
+ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
+VEHICLE_SPEED_DELTA_FROM=int(-0.7*50/FPS*SPEED_FACTOR)
+VEHICLE_SPEED_DELTA_TO=int(-1.5*50/FPS*SPEED_FACTOR)
+
 lidar=False
 #player angle 
 player_angle = 0
@@ -113,18 +117,18 @@ for row in range(len(map.map_plan)):
         currentWidth += tile_1.image.get_width()
         map_tiles_cam.add(tile_1)
         map_tiles_lidar.add(tile_2)
-        #add trees
-        if col==0:
-            tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
-            map_tiles_cam.add(tree1)
-            tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
-            map_tiles_cam.add(tree1)
+        # #add trees to left most tile
+        # if col==0:
+        #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
+        #     map_tiles_cam.add(tree1)
+        #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
+        #     map_tiles_cam.add(tree1)
 # init obstacle
 block_list = pygame.sprite.Group()
 #create obstacles
 for i in range(NUM_OBSTACLES):
     # This represents a block
-    speedDelta=random.uniform(0.7, 1.2) #random vehicle speed delta
+    speedDelta=random.uniform(VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO) #random vehicle speed delta
     block = obstacles.Obstacle(speedDelta)
     # Set a random location for the block
     block.rect.x = random.randrange(0,4)*150+375-BLOCK_WIDTH/2+random.randint(-25,25)
@@ -141,6 +145,7 @@ road_width =SCREEN_WIDTH // 4
 road_height = SCREEN_HEIGHT * 2
 road_x =SCREEN_WIDTH // 2 - road_width // 2
 road_y = -road_height + player_y + PLAYER_HEIGHT + 10
+
 
 # screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.FULLSCREEN)
@@ -202,7 +207,7 @@ while running:
         screen.blit(arcImage600,(player.rect.centerx-ARCWIDTH/2, arcImage600_rect[1]),special_flags=pygame.BLEND_RGBA_MIN)
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx-ARCWIDTH/2-600, 0, 600, 600))
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx+ARCWIDTH/2, 0, 600, 600))
-        
+
     if moving == False:
         # draw menu
         screen.blit(start_menu.image, (start_menu.rect.x, start_menu.rect.y))
