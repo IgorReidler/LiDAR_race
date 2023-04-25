@@ -23,7 +23,6 @@
 
 # object types: Vehicles, map_tlies, player, trees, obstacles
 #TODO:
-#place trees
 #obstacles: EU pallette, cone (with blooming!)
 #randomize obstacle images
 #move camera when steering
@@ -71,7 +70,13 @@ VEHICLES_SPEED=int(5*50/FPS*SPEED_FACTOR)
 ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_FROM=int(-0.7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_TO=int(-1.5*50/FPS*SPEED_FACTOR)
-
+def changeSpeed(speedFactor,speedDelta,FPS):
+    SPEED_FACTOR=speedFactor+speedDelta
+    VEHICLES_SPEED=int(5*50/FPS*SPEED_FACTOR)
+    ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
+    VEHICLE_SPEED_DELTA_FROM=int(-0.7*50/FPS*SPEED_FACTOR)
+    VEHICLE_SPEED_DELTA_TO=int(-1.5*50/FPS*SPEED_FACTOR)
+    return SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO
 #init variables
 lidar=False
 fadeAlpha=0 # used to calculate fadeAlphaMax
@@ -181,6 +186,10 @@ while running:
                 player_angle_change = 0.2
             elif event.key == pygame.K_RIGHT:
                 player_angle_change = -0.2
+            if event.key == pygame.K_UP: #increase speed
+                SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=changeSpeed(SPEED_FACTOR,0.5,FPS)
+            if event.key == pygame.K_DOWN: #decrease speed
+                SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=changeSpeed(SPEED_FACTOR,-0.5,FPS)
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and player_angle_change > 0:
                 player_angle_change = 0
@@ -205,6 +214,7 @@ while running:
     font = pygame.font.Font(None, 24)
     text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
     text_alpha=font.render('ALPHA: ' + str(int(fadeAlpha)), 1, (0, 0, 255))
+    text_speedFactor=font.render('SPEED FACTOR: ' + str(int(SPEED_FACTOR)), 1, (255, 255, 255))
     #mask by arc
     block_list.draw(screen)
     if lidar:
@@ -219,7 +229,7 @@ while running:
         frameCount+=1 #for darkening
         fadeAlpha=min(255,int(frameCount/10)) #calc alpha for darkening
         # fadeAlphaMax=min(255,fadeAlpha)
-        print("frame = "+str(frameCount)+", fadeAlpha = ,"+str(fadeAlpha))
+        print("speed factor = "+str(SPEED_FACTOR))
         fadeFillSurface.set_alpha(fadeAlpha) #set alpha for darkening
 
         player_angle += player_angle_change
@@ -243,11 +253,12 @@ while running:
             common.gameOver(screen)
             running = False
     # Update the display and tick the clock
-    if lidar==False:
+    if lidar==False and moving==1:
         screen.blit(fadeFillSurface,(0,0))
     
     screen.blit(text_fps, (70,70))
     screen.blit(text_alpha,(70,90))
+    screen.blit(text_speedFactor,(70,110))
     pygame.display.update()
     clock.tick(FPS)
 pygame.quit()

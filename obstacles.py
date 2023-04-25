@@ -6,8 +6,8 @@ class Obstacle(pygame.sprite.Sprite):
         super().__init__()
         # speed delta init
         self.speedDelta = speedDelta
-        self.vehicle_images = [r'media/vehicle1.png', r'media/vehicle2.png']
-        self.vehicle_images_lidar = [r'media/vehicle1_lidar.png', r'media/vehicle2.png']
+        self.vehicle_images = [r'media/vehicle1.png', r'media/vehicle2_piskel.png']
+        self.vehicle_images_lidar = [r'media/vehicle1_lidar.png', r'media/vehicle2_piskel.png']
         self.vehicleTypeNum=random.randint(0,len(self.vehicle_images_lidar)-1)
         self.image = pygame.image.load(self.vehicle_images[self.vehicleTypeNum])
         self.rect = self.image.get_rect()
