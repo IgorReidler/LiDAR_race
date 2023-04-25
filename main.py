@@ -38,7 +38,6 @@ import pygame
 import map, obstacles
 import random
 import common
-import math
 pygame.init()
 
 from pygame.locals import *
@@ -63,18 +62,19 @@ PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
 LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
-CAMALPHA=255
 ARCWIDTH=900
 #fps related
 SPEED_FACTOR=1.5
 NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
-STEERING_SPEED=int(9*50/FPS)
+STEERING_SPEED=int(7*50/FPS)
 VEHICLES_SPEED=int(5*50/FPS*SPEED_FACTOR)
 ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_FROM=int(-0.7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_TO=int(-1.5*50/FPS*SPEED_FACTOR)
 
+#init variables
 lidar=False
+fadeAlpha=0 # used to calculate fadeAlphaMax
 #player angle 
 player_angle = 0
 player_angle_change = 0
@@ -82,6 +82,9 @@ player_angle_change = 0
 arcImage = pygame.image.load(r'media/arcMask1.png')
 arcImage600 = pygame.transform.scale(arcImage, (900,600))
 arcImage600_rect=(150,0)
+# fade to black surface
+fadeFillSurface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))#, pygame.SRCALPHA)
+fadeFillSurface.fill((0, 0, 0, 0))
 
 #init player
 player  = pygame.sprite.Group()
@@ -147,8 +150,8 @@ road_x =SCREEN_WIDTH // 2 - road_width // 2
 road_y = -road_height + player_y + PLAYER_HEIGHT + 10
 
 
-# screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.FULLSCREEN)
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+# screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.FULLSCREEN)
 pygame.display.set_caption("LiDAR race")
 
 # Load and play music
@@ -160,6 +163,7 @@ pygame.mixer.music.pause()
 clock = pygame.time.Clock()
 running = True
 moving = False
+frameCount=0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -167,10 +171,10 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                 running = False
-            if event.key == pygame.K_l and lidar==False:
+            if event.key == pygame.K_SPACE and lidar==False:
                 lidar=True
                 break
-            if event.key == pygame.K_l and lidar==True:
+            if event.key == pygame.K_SPACE and lidar==True:
                 lidar=False
                 break
             if event.key == pygame.K_LEFT:
@@ -200,7 +204,7 @@ while running:
     # text display
     font = pygame.font.Font(None, 24)
     text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
-
+    text_alpha=font.render('ALPHA: ' + str(int(fadeAlpha)), 1, (0, 0, 255))
     #mask by arc
     block_list.draw(screen)
     if lidar:
@@ -211,11 +215,17 @@ while running:
     if moving == False:
         # draw menu
         screen.blit(start_menu.image, (start_menu.rect.x, start_menu.rect.y))
-    else:        
+    else:
+        frameCount+=1 #for darkening
+        fadeAlpha=min(255,int(frameCount/10)) #calc alpha for darkening
+        # fadeAlphaMax=min(255,fadeAlpha)
+        print("frame = "+str(frameCount)+", fadeAlpha = ,"+str(fadeAlpha))
+        fadeFillSurface.set_alpha(fadeAlpha) #set alpha for darkening
+
         player_angle += player_angle_change
         #update y of the road map
-        map_tiles_cam.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT,CAMALPHA) #Alpha 0-255
-        map_tiles_lidar.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT,255) #255=no darkening
+        map_tiles_cam.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT) #Alpha 0-255
+        map_tiles_lidar.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT) #255=no darkening
         # map_tiles_lidar.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT)
         block_list.update(VEHICLES_SPEED,LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH,lidar)
         # steer the player car with left and right arrows
@@ -232,9 +242,12 @@ while running:
         if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y): #-5 to tune to grass collision
             common.gameOver(screen)
             running = False
+    # Update the display and tick the clock
+    if lidar==False:
+        screen.blit(fadeFillSurface,(0,0))
     
     screen.blit(text_fps, (70,70))
-    # Update the display and tick the clock
+    screen.blit(text_alpha,(70,90))
     pygame.display.update()
     clock.tick(FPS)
 pygame.quit()

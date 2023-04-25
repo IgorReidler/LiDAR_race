@@ -11,8 +11,7 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = xStart#x * tile_width
         self.rect.y = y * tile_height + (screen_height-3*tile_height) #+ to place all tiles at the correct vertical position
-    def update(self,road_speed, screen_height,tilesNum_height,tile_height,alpha): 
-        self.image.set_alpha(alpha)
+    def update(self,road_speed, screen_height,tilesNum_height,tile_height): 
         self.rect.y+=road_speed
         # If the road tile goes off screen, reset it to the top of all road tile sprites
         if self.rect.y > screen_height:
