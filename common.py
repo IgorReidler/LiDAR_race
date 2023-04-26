@@ -35,7 +35,3 @@ def speedChange(speed_delta,fps,speed_factor, vehicle_speed, road_speed, vehicle
     speedChangeSound.play()
 
     return speed_factor, vehicle_speed, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to
-
-    speed_factpr, vehicle_speed, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to=changeSpeed(SPEED_FACTOR,0.5,FPS)
-    speedIncreaseSound = pygame.mixer.Sound('media/powerUp1.mp3')
-    speedIncreaseSound.play()

@@ -23,38 +23,30 @@
 
 # object types: Vehicles, map_tlies, player, trees, obstacles
 #TODO:
-#obstacles: EU pallette, cone (with blooming!)
-#randomize obstacle images
-#move camera when steering
-#changing lighting throughout the day
-#start menu - Update and fix
+#continue refactoring to functions, classes
+#score mechanism - count passed cars 
+#add obstacles: EU pallette, cone (with blooming!)
+#start menu - Update and fix keys
+#start - any key pressed, not only arrows
 #option to restart game without re-launching
-#all speeds relative to FPS like so: dt = clock.tick(60)
-# player.position.x += player.xSpeed * dt
-#sprite editor: https://www.piskelapp.com/
 
 import pygame
-import map, obstacles
-import random
-import common
-pygame.init()
+import map, obstacles, common
 
+pygame.init()
 from pygame.locals import *
-flags = FULLSCREEN
-#Rotate car.
+#Rotate car - not currently used 
 # def rot_center(image, rect, angle):
 #         """rotate an image while keeping its center"""
 #         rot_image = pygame.transform.rotate(image, angle)
 #         rot_rect = rot_image.get_rect(center=rect.center)
 #         return rot_image,rot_rect
 
-# Define screen size
-GODMODE=False
-FPS=45
+# Constants
+GODMODE=False #no collisions with obstacles, for testing
 SCREEN_WIDTH = 1200 #1920
 SCREEN_HEIGHT = 600 #1080
 DRIVE_WIDTH=600
-# TILE_WIDTH=400
 TILE_HEIGHT=400
 PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 88
@@ -62,7 +54,8 @@ BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
 LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
 ARCWIDTH=900
-#fps related
+#speed related
+FPS=45
 SPEED_FACTOR=1.5
 NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
 STEERING_SPEED=int(7*50/FPS)
@@ -70,20 +63,20 @@ VEHICLES_SPEED=int(5*50/FPS*SPEED_FACTOR)
 ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_FROM=int(-0.7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_TO=int(-1.5*50/FPS*SPEED_FACTOR)
-# sounds paths
+# sound paths
 soundUpPath='media/powerUp1.mp3'
 soundDownPath='media/powerDown2.mp3'
-
+musicPath='media/raceGame1.mp3'
+# mask image path
+lidarMaskPath=r'media/arcMask1.png'
 #init variables
 lidar=False
-fadeAlpha=0 # used to calculate fadeAlphaMax
-#player angle 
+fadeAlpha=0 # used to calculate fadeAlphaMax 
 player_angle = 0
 player_angle_change = 0
-
-arcImage = pygame.image.load(r'media/arcMask1.png')
-arcImage600 = pygame.transform.scale(arcImage, (900,600))
-arcImage600_rect=(150,0)
+lidarMask = pygame.image.load(lidarMaskPath)
+lidarMask600 = pygame.transform.scale(lidarMask, (900,600))
+lidarMask600_rect=(150,0)
 # fade to black surface
 fadeFillSurface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))#, pygame.SRCALPHA)
 fadeFillSurface.fill((0, 0, 0, 0))
@@ -104,7 +97,7 @@ start_menu.rect.x=SCREEN_WIDTH/2-start_menu_image.get_width()/2
 start_menu.rect.y=SCREEN_HEIGHT/2-start_menu_image.get_height()/2
 
 # Load and play music
-pygame.mixer.music.load(r'media/raceGame1.mp3')
+pygame.mixer.music.load(musicPath)
 # create an obstacle to cover grass
 grassLeft_obstacle_rect = pygame.Rect(0, 0, 300, SCREEN_HEIGHT)
 grassRight_obstacle_rect = pygame.Rect(900, 0, 300, SCREEN_HEIGHT)
@@ -154,6 +147,8 @@ clock = pygame.time.Clock()
 running = True
 moving = False
 frameCount=0
+map_tiles=map_tiles_cam
+# main loop
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -163,9 +158,11 @@ while running:
                 running = False
             if event.key == pygame.K_SPACE and lidar==False:
                 lidar=True
+                map_tiles=map_tiles_lidar #change map tiles to lidar
                 break
             if event.key == pygame.K_SPACE and lidar==True:
                 lidar=False
+                map_tiles=map_tiles_cam #change map tiles to camera
                 break
             if event.key == pygame.K_LEFT:
                 player_angle_change = 0.2
@@ -180,19 +177,13 @@ while running:
                 player_angle_change = 0
             elif event.key == pygame.K_RIGHT:
                 player_angle_change = 0
-    # Get key press
+    # Start moving the game. Menu only until this is pressed
     keys = pygame.key.get_pressed()
     if (keys[pygame.K_SPACE] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_UP]) and moving == False:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
         moving = True
         pygame.mixer.music.unpause()
-        # player.rect.x = player_x
-    if lidar:
-        #draw lidar map
-        map_tiles_lidar.draw(screen)
-    else:
-        # draw cam map    
-        map_tiles_cam.draw(screen)
 
+    map_tiles.draw(screen)
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
@@ -202,8 +193,8 @@ while running:
     text_speedFactor=font.render('SPEED FACTOR: ' + str(int(SPEED_FACTOR)), 1, (255, 255, 255))
     #mask by arc
     block_list.draw(screen)
-    if lidar:
-        screen.blit(arcImage600,(player.rect.centerx-ARCWIDTH/2, arcImage600_rect[1]),special_flags=pygame.BLEND_RGBA_MIN)
+    if lidar: #if lidar, mask with pie from an image 
+        screen.blit(lidarMask600,(player.rect.centerx-ARCWIDTH/2, lidarMask600_rect[1]),special_flags=pygame.BLEND_RGBA_MIN)
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx-ARCWIDTH/2-600, 0, 600, 600))
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx+ARCWIDTH/2, 0, 600, 600))
 
