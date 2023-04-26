@@ -57,12 +57,19 @@ ARCWIDTH=900
 #speed related
 FPS=45
 SPEED_FACTOR=1.5
-NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
+# NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
 STEERING_SPEED=int(7*50/FPS)
 VEHICLES_SPEED=int(5*50/FPS*SPEED_FACTOR)
 ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_FROM=int(-0.7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_TO=int(-1.5*50/FPS*SPEED_FACTOR)
+# obstacles
+NUM_OBSTACLES_VEHICLES=5
+VehiclesImagePathList=[r'media/vehicle1.png', r'media/vehicle2_piskel.png']
+VehiclesImagePathList_lidar=[r'media/vehicle1_lidar.png', r'media/vehicle2_piskel.png']
+NUM_OBSTACLES_STATIONARY=3
+stationaryObstaclesImagePathList=[r'media/cone1_small.png']
+stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png']
 # sound paths
 soundUpPath='media/powerUp1.mp3'
 soundDownPath='media/powerDown2.mp3'
@@ -121,8 +128,11 @@ for row in range(len(map.map_plan)):
         #     map_tiles_cam.add(tree1)
         #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
         #     map_tiles_cam.add(tree1)
-#create obstacles
-block_list=obstacles.loadObstacles(NUM_OBSTACLES,VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH)
+# load Vehicle obstacles
+obstacles_list=obstacles.loadObstacles(NUM_OBSTACLES_VEHICLES,VEHICLES_SPEED, VehiclesImagePathList,VehiclesImagePathList_lidar,VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH)
+# load other obstacles
+obstacles_list.add(obstacles.loadObstacles(NUM_OBSTACLES_STATIONARY,ROAD_SPEED,stationaryObstaclesImagePathList,stationaryObstaclesImagePathList_lidar,0,0,TILE_HEIGHT,BLOCK_WIDTH))
+
 # Set up the player
 player_x =SCREEN_WIDTH // 2 - PLAYER_WIDTH // 2
 player_y = SCREEN_HEIGHT - PLAYER_HEIGHT - 30
@@ -187,12 +197,12 @@ while running:
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
-    font = pygame.font.Font(None, 24)
+    font = pygame.font.Font(None, 32)
     text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
     text_alpha=font.render('ALPHA: ' + str(int(fadeAlpha)), 1, (0, 0, 255))
-    text_speedFactor=font.render('SPEED FACTOR: ' + str(int(SPEED_FACTOR)), 1, (255, 255, 255))
+    text_speedFactor=font.render('SPEED: ' + str(60+(SPEED_FACTOR-1.5)*60) + " KP/H", 1, (255, 255, 255))
     #mask by arc
-    block_list.draw(screen)
+    obstacles_list.draw(screen)
     if lidar: #if lidar, mask with pie from an image 
         screen.blit(lidarMask600,(player.rect.centerx-ARCWIDTH/2, lidarMask600_rect[1]),special_flags=pygame.BLEND_RGBA_MIN)
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx-ARCWIDTH/2-600, 0, 600, 600))
@@ -213,7 +223,7 @@ while running:
         map_tiles_cam.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT) #Alpha 0-255
         map_tiles_lidar.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT) #255=no darkening
         # map_tiles_lidar.update(ROAD_SPEED,SCREEN_WIDTH,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT)
-        block_list.update(VEHICLES_SPEED,LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH,lidar)
+        obstacles_list.update(LATERAL_CHANCE,SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH,lidar)
         # steer the player car with left and right arrows
         if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
             player.rect.x -= STEERING_SPEED
@@ -221,7 +231,7 @@ while running:
         if keys[pygame.K_RIGHT]:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
             player.rect.x += STEERING_SPEED
         if GODMODE==False:
-            if pygame.sprite.spritecollide(player, block_list, False, pygame.sprite.collide_rect):
+            if pygame.sprite.spritecollide(player, obstacles_list, False, pygame.sprite.collide_rect):
                 common.gameOver(screen)
                 running = False
         #check collision with right and left grass

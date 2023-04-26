@@ -2,41 +2,42 @@ import pygame
 import random
 
 # init obstacle
-def loadObstacles(NUM_OBSTACLES,VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH):
-    block_list = pygame.sprite.Group()
-    for i in range(NUM_OBSTACLES):
+def loadObstacles(NUM_OBSTACLES,obstacleSpeed,obstacleImagePathList,obstacleImagePathList_lidar,VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH):
+    obstacles_list = pygame.sprite.Group()
+    for i in range(NUM_OBSTACLES): #vehicles
         # This represents a block
         speedDelta=random.uniform(VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO) #random vehicle speed delta
-        block = Obstacle(speedDelta)
+        block = Obstacle(obstacleSpeed,obstacleImagePathList,obstacleImagePathList_lidar,speedDelta)
         # Set a random location for the block
         block.rect.x = random.randrange(0,4)*150+375-BLOCK_WIDTH/2+random.randint(-25,25)
         block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
         # Add the block to the list of objects
-        block_list.add(block)
-    return block_list
+        obstacles_list.add(block)
+    return obstacles_list
 
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, speedDelta=0):
+    def __init__(self, obstacleSpeed,obstacleImagePathList,obstacleImagePathList_lidar,speedDelta=0):
         super().__init__()
         # speed delta init
+        self.obstacleSpeed=obstacleSpeed
         self.speedDelta = speedDelta
-        self.vehicle_images = [r'media/vehicle1.png', r'media/vehicle2_piskel.png']
-        self.vehicle_images_lidar = [r'media/vehicle1_lidar.png', r'media/vehicle2_piskel.png']
-        self.vehicleTypeNum=random.randint(0,len(self.vehicle_images_lidar)-1)
-        self.image = pygame.image.load(self.vehicle_images[self.vehicleTypeNum])
+        self.obstacleImagePathList = obstacleImagePathList
+        self.obstacleImagePathList_lidar = obstacleImagePathList_lidar
+        self.vehicleTypeNum=random.randint(0,len(self.obstacleImagePathList)-1)
+        self.image = pygame.image.load(self.obstacleImagePathList[self.vehicleTypeNum])
         self.rect = self.image.get_rect()
         self.lateralDir=random.randint(0, 1) * 2 - 1
         self.prevImageLidar=False
-    def update(self,vehicle_speed, lateral_chance,screen_height,tile_height,tilesNum_height,obstacle_height,obstacle_width,drive_width,lidarFlag):        
+    def update(self, lateral_chance,screen_height,tile_height,tilesNum_height,obstacle_height,obstacle_width,drive_width,lidarFlag):        
         #if loaded images are non-lidar and flag is lidar, load lidar obstacles
         if lidarFlag==True and self.prevImageLidar==False:
-            self.image = pygame.image.load(self.vehicle_images_lidar[self.vehicleTypeNum])
+            self.image = pygame.image.load(self.obstacleImagePathList_lidar[self.vehicleTypeNum])
             self.prevImageLidar=True
         #if loaded images are lidar and flag is non-lidar, load non-lidar obstacles
         elif lidarFlag==False and self.prevImageLidar==True:
-            self.image = pygame.image.load(self.vehicle_images[self.vehicleTypeNum])
+            self.image = pygame.image.load(self.obstacleImagePathList[self.vehicleTypeNum])
             self.prevImageLidar=False
-        self.rect.y+=vehicle_speed+self.speedDelta
+        self.rect.y+=self.obstacleSpeed+self.speedDelta
         if random.randrange(0,10)>(1-lateral_chance)*10:
             self.rect.x+=1*self.lateralDir
 
