@@ -22,7 +22,7 @@ def gameOver(screen):
     gameOverSound.play()
     time.sleep(4)
 
-def speedChange(speed_delta,fps,speed_factor, vehicle_speed, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to,soundUpPath,soundDownPath):
+def speedChange(speed_delta,fps,speed_factor, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to,soundUpPath,soundDownPath):
     speed_factor=speed_factor+speed_delta
     vehicle_speed=int(5*50/fps*speed_factor)
     road_speed=int(7*50/fps*speed_factor)
@@ -34,4 +34,4 @@ def speedChange(speed_delta,fps,speed_factor, vehicle_speed, road_speed, vehicle
         speedChangeSound = pygame.mixer.Sound(soundDownPath)  #if speed decreases, play down sound effect
     speedChangeSound.play()
 
-    return speed_factor, vehicle_speed, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to
+    return speed_factor, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to
