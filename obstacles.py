@@ -34,6 +34,7 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.lateralDir=random.randint(0, 1) * 2 - 1
         self.prevImageLidar=False
+        self.timesPassed=0
     def update(self,screen_height,tile_height,obstacle_height,obstacle_width,lidarFlag, road_speed):        
         #if loaded images are non-lidar and flag is lidar, load lidar obstacles
         self.road_speed=road_speed
@@ -48,13 +49,16 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect.y+=self.obstacleSpeed+self.speedDelta #main vertical move
         if random.randrange(0,10)>(1-self.car_lateral_chance)*10:
             self.rect.x+=1*self.lateralDir
-
-        # If the road tile goes off screen, reset it to the top of all road tile sprites
-        # print(self.rect.y)
+        # If the obstacle goes below bottom of the screen, reset it to the top
         if self.rect.y > screen_height:
             self.rect.y = random.randrange(tile_height) - tile_height - obstacle_height
             if self.speedDelta==0: #stationary obstacles, like cones
                 self.rect.x = 300+random.randrange(0,4)*150-obstacle_width/2 #place between lanes
             else: #moving obstacles, like cars
                 self.rect.x = random.randrange(0,4)*150+375-obstacle_width/2+random.randint(- 25,25) #place at center of lanes
-            # self.rect.x = random.randrange(drive_width-obstacle_width)+math.ceil((screen_width-drive_width)/2)
+            # return 1 #mark obstacle was passed by the player
+            return 1
+        else:
+            return 0
+        # else:
+        #     return 0

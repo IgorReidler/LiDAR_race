@@ -1,12 +1,14 @@
 import pygame
 import time
+import os
+from datetime import datetime
 
-def gameOver(screen):
+def gameOver(screen,obstaclesPassed):
     # Draw "Game over" text
     font1 = pygame.font.Font('freesansbold.ttf', 32)
-    font2 = pygame.font.Font('freesansbold.ttf', 24)
-    text1 = font1.render('Game Over!', True, (255, 0, 0))
-    text2 = font2.render('You have received a formal escalation letter', True, (255, 0, 0))
+    font2 = pygame.font.Font('freesansbold.ttf', 48)
+    text1 = font1.render('Game Over', True, (255, 0, 0))
+    text2 = font2.render('You passed '+str(obstaclesPassed)+' true positives!', True, (255, 0, 0))
     textRect1 = text1.get_rect()
     textRect2 = text2.get_rect()
     textRect1.center = (600, 200)
@@ -21,6 +23,22 @@ def gameOver(screen):
     gameOverSound = pygame.mixer.Sound('media/game-over-38511.mp3')
     gameOverSound.play()
     time.sleep(4)
+
+def write_high_score(playerName, highScore): #This function was entirely written by bing (GPT v4.0 on 27 Apr 2023)
+    if not os.path.exists('highscore.txt'):
+        open('highscore.txt', 'w').close()
+    with open('highscore.txt', 'r') as f:
+        lines = f.readlines()
+        scores = {}
+        for line in lines:
+            name, score, date = line.strip().split(',')
+            scores[name] = (int(score), date)
+        if playerName in scores and highScore <= scores[playerName][0]:
+            return
+        scores[playerName] = (highScore, datetime.now().strftime('%H:%M %d/%m/%Y'))
+    with open('highscore.txt', 'w') as f:
+        for name, score_date in scores.items():
+            f.write(f'{name},{score_date[0]},{score_date[1]}\n')
 
 def speedChange(speed_delta,fps,speed_factor, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to,soundUpPath,soundDownPath):
     speed_factor=speed_factor+speed_delta

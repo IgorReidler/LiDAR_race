@@ -42,6 +42,8 @@ from pygame.locals import *
 #         return rot_image,rot_rect
 
 # Constants
+playerName='Igor'
+highScore=0
 GODMODE=False #no collisions with obstacles, for testing
 SCREEN_WIDTH = 1200 #1920
 SCREEN_HEIGHT = 600 #1080
@@ -63,12 +65,12 @@ ROAD_SPEED=int(10*50/FPS*SPEED_FACTOR)
 car_SPEED_DELTA_FROM=int(-1.5*50/FPS*SPEED_FACTOR)
 car_SPEED_DELTA_TO=int(-2*50/FPS*SPEED_FACTOR)
 # obstacles
-carsImagePathList=[r'media/car1.png', r'media/car2.png']
-carsImagePathList_lidar=[r'media/car1_lidar.png', r'media/car2.png']
+carsImagePathList=[r'media/car1.png', r'media/car2.png',r'media/car3_80.png']
+carsImagePathList_lidar=[r'media/car1_lidar.png', r'media/car2.png',r'media/car3_85.png']
 stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
 stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png',r'media/tire1_55.png']
 NUM_OBSTACLES_CARS=6 #number of cars on the road in each vertical tile row
-NUM_OBSTACLES_STATIONARY=2 #number of stationary obstacles (cones, EU palettes) in each vertical row
+NUM_OBSTACLES_STATIONARY=5 #number of stationary obstacles (cones, EU palettes) in each vertical row
 # sound paths
 soundUpPath='media/powerUp1.mp3'
 soundDownPath='media/powerDown2.mp3'
@@ -77,6 +79,7 @@ musicPath='media/raceGame1.mp3'
 lidarMaskPath=r'media/arcMask1.png'
 #init variables
 lidar=False
+score=0 #number of obstacles passed (used for score calculation)
 fadeAlpha=0 # used to calculate fadeAlphaMax 
 player_angle = 0
 player_angle_change = 0
@@ -198,17 +201,13 @@ while running:
     map_tiles.draw(screen)
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
-    # text display
-    font = pygame.font.Font(None, 30)
-    text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
-    text_alpha=font.render('ALPHA: ' + str(int(fadeAlpha)), 1, (0, 0, 255))
-    text_speedFactor=font.render('SPEED: ' + str(60+(SPEED_FACTOR-1.5)*60) + " KP/H", 1, (255, 255, 255))
     #mask by arc
     all_obstacles_list.draw(screen)
     if lidar: #if lidar, mask with pie from an image 
         screen.blit(lidarMask600,(player.rect.centerx-ARCWIDTH/2, lidarMask600_rect[1]),special_flags=pygame.BLEND_RGBA_MIN)
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx-ARCWIDTH/2-600, 0, 600, 600))
         pygame.draw.rect(screen, (0,0,0), pygame.Rect(player.rect.centerx+ARCWIDTH/2, 0, 600, 600))
+        
 
     if moving == False:
         # draw menu
@@ -222,7 +221,9 @@ while running:
         #update y of the road map
         map_tiles_cam.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT) #Alpha 0-255
         map_tiles_lidar.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT) #255=no darkening
-        all_obstacles_list.update(SCREEN_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,lidar, ROAD_SPEED)
+        for obstacle in all_obstacles_list:
+            wasPassed=obstacle.update(SCREEN_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,lidar, ROAD_SPEED)
+            score+=wasPassed
         # steer the player car with left and right arrows
         if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
             player.rect.x -= STEERING_SPEED
@@ -231,7 +232,8 @@ while running:
             player.rect.x += STEERING_SPEED
         if GODMODE==False:
             if pygame.sprite.spritecollide(player, all_obstacles_list, False, pygame.sprite.collide_rect):
-                common.gameOver(screen)
+                common.write_high_score(playerName, score)
+                common.gameOver(screen,score)
                 running = False
             #remove obstacles that collide with >1 other obstacles (to take self collision into account)
             collisions=pygame.sprite.groupcollide(all_obstacles_list,all_obstacles_list,False,False)
@@ -243,15 +245,22 @@ while running:
 
         #check collision with right and left grass
         if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y): #-5 to tune to grass collision
-            common.gameOver(screen)
+            common.gameOver(screen,score)
             running = False
     # Update the display and tick the clock
     if lidar==False and moving==1:
         screen.blit(fadeFillSurface,(0,0))
     
+    # text display
+    font = pygame.font.Font(None, 30)
+    text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
+    text_alpha=font.render('ALPHA: ' + str(int(fadeAlpha)), 1, (0, 0, 255))
+    text_speedFactor=font.render('SPEED: ' + str(60+(SPEED_FACTOR-1.5)*60) + " KP/H", 1, (255, 255, 255))
+    text_score=font.render('SCORE: ' + str(score), 1, (255, 255, 255))
     screen.blit(text_fps, (70,70))
     screen.blit(text_alpha,(70,100))
     screen.blit(text_speedFactor,(70,130))
+    screen.blit(text_score,(70,160))
     pygame.display.update()
     clock.tick(FPS)
 pygame.quit()
