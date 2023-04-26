@@ -70,13 +70,10 @@ VEHICLES_SPEED=int(5*50/FPS*SPEED_FACTOR)
 ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_FROM=int(-0.7*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_TO=int(-1.5*50/FPS*SPEED_FACTOR)
-def changeSpeed(speedFactor,speedDelta,FPS):
-    SPEED_FACTOR=speedFactor+speedDelta
-    VEHICLES_SPEED=int(5*50/FPS*SPEED_FACTOR)
-    ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
-    VEHICLE_SPEED_DELTA_FROM=int(-0.7*50/FPS*SPEED_FACTOR)
-    VEHICLE_SPEED_DELTA_TO=int(-1.5*50/FPS*SPEED_FACTOR)
-    return SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO
+# sounds paths
+soundUpPath='media/powerUp1.mp3'
+soundDownPath='media/powerDown2.mp3'
+
 #init variables
 lidar=False
 fadeAlpha=0 # used to calculate fadeAlphaMax
@@ -131,19 +128,8 @@ for row in range(len(map.map_plan)):
         #     map_tiles_cam.add(tree1)
         #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
         #     map_tiles_cam.add(tree1)
-# init obstacle
-block_list = pygame.sprite.Group()
 #create obstacles
-for i in range(NUM_OBSTACLES):
-    # This represents a block
-    speedDelta=random.uniform(VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO) #random vehicle speed delta
-    block = obstacles.Obstacle(speedDelta)
-    # Set a random location for the block
-    block.rect.x = random.randrange(0,4)*150+375-BLOCK_WIDTH/2+random.randint(-25,25)
-    block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
-    # Add the block to the list of objects
-    block_list.add(block)
-
+block_list=obstacles.loadObstacles(NUM_OBSTACLES,VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH)
 # Set up the player
 player_x =SCREEN_WIDTH // 2 - PLAYER_WIDTH // 2
 player_y = SCREEN_HEIGHT - PLAYER_HEIGHT - 30
@@ -153,7 +139,6 @@ road_width =SCREEN_WIDTH // 4
 road_height = SCREEN_HEIGHT * 2
 road_x =SCREEN_WIDTH // 2 - road_width // 2
 road_y = -road_height + player_y + PLAYER_HEIGHT + 10
-
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 # screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.FULLSCREEN)
@@ -186,14 +171,10 @@ while running:
                 player_angle_change = 0.2
             elif event.key == pygame.K_RIGHT:
                 player_angle_change = -0.2
-            if event.key == pygame.K_UP: #increase speed
-                SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=changeSpeed(SPEED_FACTOR,0.5,FPS)
-                speedIncreaseSound = pygame.mixer.Sound('media/powerUp1.mp3')
-                speedIncreaseSound.play()
-            if event.key == pygame.K_DOWN: #decrease speed
-                SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=changeSpeed(SPEED_FACTOR,-0.5,FPS)
-                speedIncreaseSound = pygame.mixer.Sound('media/powerDown1.mp3')
-                speedIncreaseSound.play()
+            if event.key == pygame.K_UP and moving: #increase speed
+                SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=common.speedChange(0.5,FPS,SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO,soundUpPath,soundDownPath)
+            if event.key == pygame.K_DOWN and moving: #decrease speed
+                SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=common.speedChange(-0.5,FPS,SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO,soundUpPath,soundDownPath)
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 player_angle_change = 0

@@ -1,6 +1,20 @@
 import pygame
 import random
 
+# init obstacle
+def loadObstacles(NUM_OBSTACLES,VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH):
+    block_list = pygame.sprite.Group()
+    for i in range(NUM_OBSTACLES):
+        # This represents a block
+        speedDelta=random.uniform(VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO) #random vehicle speed delta
+        block = Obstacle(speedDelta)
+        # Set a random location for the block
+        block.rect.x = random.randrange(0,4)*150+375-BLOCK_WIDTH/2+random.randint(-25,25)
+        block.rect.y = random.randrange(TILE_HEIGHT)-TILE_HEIGHT
+        # Add the block to the list of objects
+        block_list.add(block)
+    return block_list
+
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, speedDelta=0):
         super().__init__()
