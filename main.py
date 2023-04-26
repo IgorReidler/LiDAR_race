@@ -20,12 +20,11 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-
-# object types: Vehicles, map_tlies, player, trees, obstacles
 #TODO:
+#convert all images to LiDAR images with _lidar
 #continue refactoring to functions, classes
 #score mechanism - count passed cars 
-#add obstacles: EU pallette, cone (with blooming!)
+#add obstacles: EU pallette
 #start menu - Update and fix keys
 #start - any key pressed, not only arrows
 #option to restart game without re-launching
@@ -55,7 +54,7 @@ BLOCK_HEIGHT=88
 VEHICLE_LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
 ARCWIDTH=900
 #speed related
-FPS=45
+FPS=60
 SPEED_FACTOR=1
 # NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
 STEERING_SPEED=int(10*50/FPS)
@@ -64,12 +63,12 @@ ROAD_SPEED=int(10*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_FROM=int(-1.5*50/FPS*SPEED_FACTOR)
 VEHICLE_SPEED_DELTA_TO=int(-2*50/FPS*SPEED_FACTOR)
 # obstacles
-NUM_OBSTACLES_VEHICLES=5
 VehiclesImagePathList=[r'media/vehicle1.png', r'media/vehicle2_piskel.png']
 VehiclesImagePathList_lidar=[r'media/vehicle1_lidar.png', r'media/vehicle2_piskel.png']
-NUM_OBSTACLES_STATIONARY=3
 stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
-stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png']
+stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png',r'media/tire1_55.png']
+NUM_OBSTACLES_VEHICLES=7 #number of vehicles on the road in each vertical tile row
+NUM_OBSTACLES_STATIONARY=2 #number of stationary obstacles (cones, EU palettes) in each vertical row
 # sound paths
 soundUpPath='media/powerUp1.mp3'
 soundDownPath='media/powerDown2.mp3'
@@ -200,7 +199,7 @@ while running:
     # draw the player car
     screen.blit(player.image, (player.rect.x, player.rect.y))
     # text display
-    font = pygame.font.Font(None, 32)
+    font = pygame.font.Font(None, 30)
     text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
     text_alpha=font.render('ALPHA: ' + str(int(fadeAlpha)), 1, (0, 0, 255))
     text_speedFactor=font.render('SPEED: ' + str(60+(SPEED_FACTOR-1.5)*60) + " KP/H", 1, (255, 255, 255))
@@ -223,7 +222,7 @@ while running:
         #update y of the road map
         map_tiles_cam.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT) #Alpha 0-255
         map_tiles_lidar.update(ROAD_SPEED,SCREEN_HEIGHT,len(map.map_plan),TILE_HEIGHT) #255=no darkening
-        all_obstacles_list.update(SCREEN_HEIGHT,TILE_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,DRIVE_WIDTH,lidar, ROAD_SPEED)
+        all_obstacles_list.update(SCREEN_HEIGHT,len(map.map_plan),BLOCK_HEIGHT,BLOCK_WIDTH,lidar, ROAD_SPEED)
         # steer the player car with left and right arrows
         if keys[pygame.K_LEFT]:# and player_x > lanes[0].x:
             player.rect.x -= STEERING_SPEED
@@ -243,8 +242,8 @@ while running:
         screen.blit(fadeFillSurface,(0,0))
     
     screen.blit(text_fps, (70,70))
-    screen.blit(text_alpha,(70,90))
-    screen.blit(text_speedFactor,(70,110))
+    screen.blit(text_alpha,(70,100))
+    screen.blit(text_speedFactor,(70,130))
     pygame.display.update()
     clock.tick(FPS)
 pygame.quit()
