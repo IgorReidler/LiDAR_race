@@ -51,23 +51,23 @@ PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 88
 BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
-VEHICLE_LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of vehicles
+car_LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of cars
 ARCWIDTH=900
 #speed related
 FPS=60
 SPEED_FACTOR=1
 # NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
 STEERING_SPEED=int(10*50/FPS)
-# VEHICLES_ON_ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
+# carS_ON_ROAD_SPEED=int(7*50/FPS*SPEED_FACTOR)
 ROAD_SPEED=int(10*50/FPS*SPEED_FACTOR)
-VEHICLE_SPEED_DELTA_FROM=int(-1.5*50/FPS*SPEED_FACTOR)
-VEHICLE_SPEED_DELTA_TO=int(-2*50/FPS*SPEED_FACTOR)
+car_SPEED_DELTA_FROM=int(-1.5*50/FPS*SPEED_FACTOR)
+car_SPEED_DELTA_TO=int(-2*50/FPS*SPEED_FACTOR)
 # obstacles
-VehiclesImagePathList=[r'media/vehicle1.png', r'media/vehicle2_piskel.png']
-VehiclesImagePathList_lidar=[r'media/vehicle1_lidar.png', r'media/vehicle2_piskel.png']
+carsImagePathList=[r'media/car1.png', r'media/car2.png']
+carsImagePathList_lidar=[r'media/car1_lidar.png', r'media/car2.png']
 stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
 stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png',r'media/tire1_55.png']
-NUM_OBSTACLES_VEHICLES=7 #number of vehicles on the road in each vertical tile row
+NUM_OBSTACLES_CARS=6 #number of cars on the road in each vertical tile row
 NUM_OBSTACLES_STATIONARY=2 #number of stationary obstacles (cones, EU palettes) in each vertical row
 # sound paths
 soundUpPath='media/powerUp1.mp3'
@@ -128,12 +128,12 @@ for row in range(len(map.map_plan)):
         #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
         #     map_tiles_cam.add(tree1)
 all_obstacles_list=pygame.sprite.Group()
-# Create vehicle obstacles list
-vehicles_list=obstacles.loadObstacles(NUM_OBSTACLES_VEHICLES,ROAD_SPEED, VehiclesImagePathList,VehiclesImagePathList_lidar,VEHICLE_SPEED_DELTA_FROM,VEHICLE_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH,VEHICLE_LATERAL_CHANCE)
+# Create car obstacles list
+cars_list=obstacles.loadObstacles(NUM_OBSTACLES_CARS,ROAD_SPEED, carsImagePathList,carsImagePathList_lidar,car_SPEED_DELTA_FROM,car_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH,car_LATERAL_CHANCE)
 # Create static obstacles list (cones, EU pallete etc..)
 static_obstacles_list=obstacles.loadObstacles(NUM_OBSTACLES_STATIONARY,ROAD_SPEED,stationaryObstaclesImagePathList,stationaryObstaclesImagePathList_lidar,0,0,TILE_HEIGHT,BLOCK_WIDTH,0)
 # add all lists to all obstacles list
-all_obstacles_list.add(vehicles_list, static_obstacles_list)
+all_obstacles_list.add(cars_list, static_obstacles_list)
 
 # Set up the player
 player_x =SCREEN_WIDTH // 2 - PLAYER_WIDTH // 2
@@ -181,9 +181,9 @@ while running:
             elif event.key == pygame.K_RIGHT:
                 player_angle_change = -0.2
             if event.key == pygame.K_UP and moving: #increase speed
-                SPEED_FACTOR, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=common.speedChange(0.5,FPS,SPEED_FACTOR, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO,soundUpPath,soundDownPath)
+                SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO=common.speedChange(0.5,FPS,SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO,soundUpPath,soundDownPath)
             if event.key == pygame.K_DOWN and moving: #decrease speed
-                SPEED_FACTOR, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=common.speedChange(-0.5,FPS,SPEED_FACTOR, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO,soundUpPath,soundDownPath)
+                SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO=common.speedChange(-0.5,FPS,SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO,soundUpPath,soundDownPath)
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 player_angle_change = 0
@@ -233,6 +233,14 @@ while running:
             if pygame.sprite.spritecollide(player, all_obstacles_list, False, pygame.sprite.collide_rect):
                 common.gameOver(screen)
                 running = False
+            #remove obstacles that collide with >1 other obstacles (to take self collision into account)
+            collisions=pygame.sprite.groupcollide(all_obstacles_list,all_obstacles_list,False,False)
+            for obstacle in collisions:
+                if len(collisions[obstacle]) > 1:
+                    obstacle.kill()
+                    all_obstacles_list.add(obstacles.loadObstacles(1,ROAD_SPEED, carsImagePathList,carsImagePathList_lidar,car_SPEED_DELTA_FROM,car_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH,car_LATERAL_CHANCE))
+
+
         #check collision with right and left grass
         if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y): #-5 to tune to grass collision
             common.gameOver(screen)
