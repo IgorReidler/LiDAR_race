@@ -70,8 +70,8 @@ carsImagePathList=[r'media/car1.png', r'media/car2.png',r'media/car3_80.png']
 carsImagePathList_lidar=[r'media/car1_lidar.png', r'media/car2.png',r'media/car3_85.png']
 stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
 stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png',r'media/tire1_55.png']
-NUM_OBSTACLES_CARS=6 #number of cars on the road in each vertical tile row
-NUM_OBSTACLES_STATIONARY=3 #number of stationary obstacles (cones, EU palettes) in each vertical row
+NUM_OBSTACLES_CARS=5 #number of cars on the road in each vertical tile row
+NUM_OBSTACLES_STATIONARY=2 #number of stationary obstacles (cones, EU palettes) in each vertical row
 # sound paths
 soundUpPath='media/powerUp1.mp3'
 soundDownPath='media/powerDown2.mp3'
@@ -157,8 +157,8 @@ road_height = SCREEN_HEIGHT * 2
 road_x =SCREEN_WIDTH // 2 - road_width // 2
 road_y = -road_height + player_y + PLAYER_HEIGHT + 10
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-# screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.FULLSCREEN)
+# screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.FULLSCREEN)
 pygame.display.set_caption("LiDAR race")
 
 # Load and play music
@@ -193,9 +193,9 @@ while running:
             elif event.key == pygame.K_RIGHT:
                 player_angle_change = -0.2
             if event.key == pygame.K_UP and moving: #increase speed
-                SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO=common.speedChange(0.5,FPS,SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO,soundUpPath,soundDownPath)
+                SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO=common.speedChange(1.0,FPS,SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO,soundUpPath,soundDownPath)
             if event.key == pygame.K_DOWN and moving: #decrease speed
-                SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO=common.speedChange(-0.5,FPS,SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO,soundUpPath,soundDownPath)
+                SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO=common.speedChange(-1.0,FPS,SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO,soundUpPath,soundDownPath)
             if event.key == pygame.K_r and gameOver == True:
                 print("Restart!")
         # elif event.type == pygame.KEYUP:
