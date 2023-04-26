@@ -21,6 +21,7 @@
 #THE SOFTWARE.
 
 #TODO:
+#restart by init function. May have to use a main game class
 #convert all images to LiDAR images with _lidar
 #continue refactoring to functions, classes
 #score mechanism - count passed cars 
@@ -70,15 +71,35 @@ carsImagePathList_lidar=[r'media/car1_lidar.png', r'media/car2.png',r'media/car3
 stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
 stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png',r'media/tire1_55.png']
 NUM_OBSTACLES_CARS=6 #number of cars on the road in each vertical tile row
-NUM_OBSTACLES_STATIONARY=5 #number of stationary obstacles (cones, EU palettes) in each vertical row
+NUM_OBSTACLES_STATIONARY=3 #number of stationary obstacles (cones, EU palettes) in each vertical row
 # sound paths
 soundUpPath='media/powerUp1.mp3'
 soundDownPath='media/powerDown2.mp3'
 musicPath='media/raceGame1.mp3'
 # mask image path
 lidarMaskPath=r'media/arcMask1.png'
-#init variables
+    #init variables
+# Create your sprite groups
+map_tiles_cam = pygame.sprite.Group()
+map_tiles_lidar = pygame.sprite.Group()
+    #add all tiles to a map list called map_tiles_cam
+for row in range(len(map.map_plan)):
+    currentWidth=0
+    for col in range(len(map.map_plan[row])):
+        tile_1 = map.Tile(currentWidth, row, map.map_cam_tiles[map.map_plan[row][col]-1],SCREEN_HEIGHT) #xStart=currentWidth
+        tile_2 = map.Tile(currentWidth, row, map.map_lidar_tiles[map.map_plan[row][col]-1],SCREEN_HEIGHT) #xStart=currentWidth
+        currentWidth += tile_1.image.get_width()
+        map_tiles_cam.add(tile_1)
+        map_tiles_lidar.add(tile_2)
+        # #add trees to left most tile
+        # if col==0:
+        #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
+        #     map_tiles_cam.add(tree1)
+        #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
+        #     map_tiles_cam.add(tree1)
+
 lidar=False
+gameOver=False
 score=0 #number of obstacles passed (used for score calculation)
 fadeAlpha=0 # used to calculate fadeAlphaMax 
 player_angle = 0
@@ -105,31 +126,19 @@ start_menu.rect = player.image.get_rect()
 start_menu.rect.x=SCREEN_WIDTH/2-start_menu_image.get_width()/2
 start_menu.rect.y=SCREEN_HEIGHT/2-start_menu_image.get_height()/2
 
+gameOver_menu  = pygame.sprite.Group()
+gameOver_menu_image = pygame.image.load(r'media/gameOver_menu.png')
+gameOver_menu.image = gameOver_menu_image
+gameOver_menu.rect = player.image.get_rect()
+gameOver_menu.rect.x=SCREEN_WIDTH/2-start_menu_image.get_width()/2
+gameOver_menu.rect.y=SCREEN_HEIGHT/2-start_menu_image.get_height()/2
 # Load and play music
 pygame.mixer.music.load(musicPath)
 # create an obstacle to cover grass
 grassLeft_obstacle_rect = pygame.Rect(0, 0, 300, SCREEN_HEIGHT)
 grassRight_obstacle_rect = pygame.Rect(900, 0, 300, SCREEN_HEIGHT)
 
-# Create your sprite groups
-map_tiles_cam = pygame.sprite.Group()
-map_tiles_lidar = pygame.sprite.Group()
 
-#add all tiles to a map list called map_tiles_cam
-for row in range(len(map.map_plan)):
-    currentWidth=0
-    for col in range(len(map.map_plan[row])):
-        tile_1 = map.Tile(currentWidth, row, map.map_cam_tiles[map.map_plan[row][col]-1],SCREEN_HEIGHT) #xStart=currentWidth
-        tile_2 = map.Tile(currentWidth, row, map.map_lidar_tiles[map.map_plan[row][col]-1],SCREEN_HEIGHT) #xStart=currentWidth
-        currentWidth += tile_1.image.get_width()
-        map_tiles_cam.add(tile_1)
-        map_tiles_lidar.add(tile_2)
-        # #add trees to left most tile
-        # if col==0:
-        #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
-        #     map_tiles_cam.add(tree1)
-        #     tree1=map.Tile(100,row,map.tree_images[0],SCREEN_HEIGHT)
-        #     map_tiles_cam.add(tree1)
 all_obstacles_list=pygame.sprite.Group()
 # Create car obstacles list
 cars_list=obstacles.loadObstacles(NUM_OBSTACLES_CARS,ROAD_SPEED, carsImagePathList,carsImagePathList_lidar,car_SPEED_DELTA_FROM,car_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH,car_LATERAL_CHANCE)
@@ -187,14 +196,17 @@ while running:
                 SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO=common.speedChange(0.5,FPS,SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO,soundUpPath,soundDownPath)
             if event.key == pygame.K_DOWN and moving: #decrease speed
                 SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO=common.speedChange(-0.5,FPS,SPEED_FACTOR, ROAD_SPEED, car_SPEED_DELTA_FROM, car_SPEED_DELTA_TO,soundUpPath,soundDownPath)
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
-                player_angle_change = 0
-            elif event.key == pygame.K_RIGHT:
-                player_angle_change = 0
+            if event.key == pygame.K_r and gameOver == True:
+                print("Restart!")
+        # elif event.type == pygame.KEYUP:
+        #     if event.key == pygame.K_LEFT:
+        #         player_angle_change = 0
+        #     elif event.key == pygame.K_RIGHT:
+        #         player_angle_change = 0
+
     # Start moving the game. Menu only until this is pressed
     keys = pygame.key.get_pressed()
-    if (keys[pygame.K_SPACE] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_UP]) and moving == False:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
+    if (keys[pygame.K_SPACE] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_UP]) and moving == False and gameOver == False:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
         moving = True
         pygame.mixer.music.unpause()
 
@@ -210,8 +222,11 @@ while running:
         
 
     if moving == False:
-        # draw menu
-        screen.blit(start_menu.image, (start_menu.rect.x, start_menu.rect.y))
+        if gameOver==False:
+            # draw start menu
+            screen.blit(start_menu.image, (start_menu.rect.x, start_menu.rect.y))
+        else:
+            screen.blit(gameOver_menu.image, (gameOver_menu.rect.x, gameOver_menu.rect.y))
     else:
         frameCount+=1 #for darkening
         fadeAlpha=min(255,int(frameCount/10)) #calc alpha for darkening
@@ -231,10 +246,15 @@ while running:
         if keys[pygame.K_RIGHT]:# and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
             player.rect.x += STEERING_SPEED
         if GODMODE==False:
-            if pygame.sprite.spritecollide(player, all_obstacles_list, False, pygame.sprite.collide_rect):
+            if pygame.sprite.spritecollide(player, all_obstacles_list, False, pygame.sprite.collide_rect) or grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y):
                 common.write_high_score(playerName, score)
                 common.gameOver(screen,score)
-                running = False
+                moving = False
+                gameOver = True
+            #check collision with right and left grass
+            # if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y): #-5 to tune to grass collision
+            #     common.gameOver(screen,score)
+            #     moving = False
             #remove obstacles that collide with >1 other obstacles (to take self collision into account)
             collisions=pygame.sprite.groupcollide(all_obstacles_list,all_obstacles_list,False,False)
             for obstacle in collisions:
@@ -243,10 +263,6 @@ while running:
                     all_obstacles_list.add(obstacles.loadObstacles(1,ROAD_SPEED, carsImagePathList,carsImagePathList_lidar,car_SPEED_DELTA_FROM,car_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH,car_LATERAL_CHANCE))
 
 
-        #check collision with right and left grass
-        if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y): #-5 to tune to grass collision
-            common.gameOver(screen,score)
-            running = False
     # Update the display and tick the clock
     if lidar==False and moving==1:
         screen.blit(fadeFillSurface,(0,0))
