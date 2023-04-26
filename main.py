@@ -188,12 +188,16 @@ while running:
                 player_angle_change = -0.2
             if event.key == pygame.K_UP: #increase speed
                 SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=changeSpeed(SPEED_FACTOR,0.5,FPS)
+                speedIncreaseSound = pygame.mixer.Sound('media/powerUp1.mp3')
+                speedIncreaseSound.play()
             if event.key == pygame.K_DOWN: #decrease speed
                 SPEED_FACTOR, VEHICLES_SPEED, ROAD_SPEED, VEHICLE_SPEED_DELTA_FROM, VEHICLE_SPEED_DELTA_TO=changeSpeed(SPEED_FACTOR,-0.5,FPS)
+                speedIncreaseSound = pygame.mixer.Sound('media/powerDown1.mp3')
+                speedIncreaseSound.play()
         elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT and player_angle_change > 0:
+            if event.key == pygame.K_LEFT:
                 player_angle_change = 0
-            elif event.key == pygame.K_RIGHT and player_angle_change < 0:
+            elif event.key == pygame.K_RIGHT:
                 player_angle_change = 0
     # Get key press
     keys = pygame.key.get_pressed()
