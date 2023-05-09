@@ -20,20 +20,33 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
+#TODO:
+#create lidar images - lanes, cars, obstacles
+#refactor startMenu from running and moving flag to class functions 
+#score mechanism - count passed cars 
+#add obstacles: EU pallette
+#start menu - Update and fix keys
+#start - any key pressed, not only arrows
+#option to restart game without re-launching
+
 import pygame
 import map, obstacles, common
 from pygame.locals import *
 import const
 from sys import exit
+from time import sleep
+
 class Game:
     def __init__(self):
         print("Lets go!")
+        self.playerName='Player1'
         self.running = True
         self.moving = False
         self.highScore=0
         # Create your sprite groups
         self.map_tiles_cam = pygame.sprite.Group()
         self.map_tiles_lidar = pygame.sprite.Group()
+        self.map_tiles=self.map_tiles_cam
         #add all tiles to a map list called map_tiles_cam
         for row in range(len(map.map_plan)):
             currentWidth=0
@@ -106,16 +119,33 @@ class Game:
         # pygame.mixer.music.play(-1)
         # pygame.mixer.music.pause()
         self.lidar=False
-    def run(self,playerName='Player1'):
-        self.playerName = playerName
+    def prepareScreen(self):
         self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
         # screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
         pygame.display.set_caption("LiDAR race")
 
         # Set up the clock
+        self.map_tiles=self.map_tiles_cam
+        #after key event
+        self.map_tiles.draw(self.screen)
+        # draw the player car
+        self.screen.blit(self.player.image,
+                    (self.player.rect.x, self.player.rect.y))
+        # mask by arc
+        self.all_obstacles_list.draw(self.screen)
+        if self.lidar:  # if lidar, mask with pie from an image
+            self.screen.blit(self.lidarMask600, (self.player.rect.centerx-const.ARCWIDTH/2,
+                        self.lidarMask600_rect[1]), special_flags=pygame.BLEND_RGBA_MIN)
+            pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(
+                self.player.rect.centerx-const.ARCWIDTH/2-600, 0, 600, 600))
+            pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(
+                self.player.rect.centerx+const.ARCWIDTH/2, 0, 600, 600))
+    
+    def run(self):
+        # Set up the clock
         clock = pygame.time.Clock()
         frameCount=0
-        map_tiles=self.map_tiles_cam
+        # map_tiles=self.map_tiles_cam
 
         # main loop
         while self.running:
@@ -127,11 +157,11 @@ class Game:
                         self.running = False
                     if event.key == pygame.K_SPACE and self.lidar == False:
                         self.lidar = True
-                        map_tiles = self.map_tiles_lidar  # change map tiles to lidar
+                        self.map_tiles = self.map_tiles_lidar  # change map tiles to lidar
                         break
                     if event.key == pygame.K_SPACE and self.lidar == True:
                         self.lidar = False
-                        map_tiles = self.map_tiles_cam  # change map tiles to camera
+                        self.map_tiles = self.map_tiles_cam  # change map tiles to camera
                         break
                     if event.key == pygame.K_LEFT:
                         self.player_angle_change = 0.2
@@ -143,25 +173,16 @@ class Game:
                     if event.key == pygame.K_DOWN and self.moving:  # decrease speed
                         const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
                             -1.0, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
-                    if event.key == pygame.K_r and self.gameOver == True:
-                        print("Restart!")
-                # elif event.type == pygame.KEYUP:
-                #     if event.key == pygame.K_LEFT:
-                #         self.player_angle_change = 0
-                #     elif event.key == pygame.K_RIGHT:
-                #         self.player_angle_change = 0
 
-            # Start moving the game. Menu only until this is pressed
             keys = pygame.key.get_pressed()
-            # and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
-            if (keys[pygame.K_SPACE] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_UP]) and self.moving == False and self.gameOver == False:
-                self.moving = True
-                pygame.mixer.music.unpause()
-
-            map_tiles.draw(self.screen)
+                # steer the player car with left and right arrows
+            if keys[pygame.K_LEFT]:  # and player_x > lanes[0].x:
+                self.player.rect.x -= const.STEERING_SPEED
+            if keys[pygame.K_RIGHT]:
+                self.player.rect.x += const.STEERING_SPEED
+            self.map_tiles.draw(self.screen)
             # draw the player car
-            self.screen.blit(self.player.image,
-                        (self.player.rect.x, self.player.rect.y))
+            self.screen.blit(self.player.image,(self.player.rect.x, self.player.rect.y))
             # mask by arc
             self.all_obstacles_list.draw(self.screen)
             if self.lidar:  # if lidar, mask with pie from an image
@@ -172,67 +193,48 @@ class Game:
                 pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(
                     self.player.rect.centerx+const.ARCWIDTH/2, 0, 600, 600))
 
-            if self.moving == False:
-                if self.gameOver == False:
-                    # draw start menu
-                    self.screen.blit(self.start_menu.image,
-                                (self.start_menu.rect.x, self.start_menu.rect.y))
-                else:
-                    print("show GameOver menu, old way")
-                    # self.screen.blit(self.gameOver_menu.image,
-                    #             (self.gameOver_menu.rect.x, self.gameOver_menu.rect.y))
-            else:
-                frameCount += 1  # for darkening
-                fadeAlpha = min(255, int(frameCount/10))  # calc alpha for darkening
-                self.fadeFillSurface.set_alpha(
-                    fadeAlpha)  # set alpha for darkening
+            frameCount += 1  # for darkening
+            fadeAlpha = min(255, int(frameCount/10))  # calc alpha for darkening
+            self.fadeFillSurface.set_alpha(
+                fadeAlpha)  # set alpha for darkening
 
-                self.player_angle += self.player_angle_change
-                # update y of the road map
-                self.map_tiles_cam.update(const.ROAD_SPEED, const.SCREEN_HEIGHT, len(
-                    map.map_plan), const.TILE_HEIGHT)  # Alpha 0-255
-                self.map_tiles_lidar.update(const.ROAD_SPEED, const.SCREEN_HEIGHT, len(
-                    map.map_plan), const.TILE_HEIGHT)  # 255=no darkening
-                for obstacle in self.all_obstacles_list:
-                    wasPassed = obstacle.update(const.SCREEN_HEIGHT, len(
-                        map.map_plan), const.BLOCK_HEIGHT, const.BLOCK_WIDTH, self.lidar, const.ROAD_SPEED)
-                    self.score += wasPassed
-                # steer the player car with left and right arrows
-                if keys[pygame.K_LEFT]:  # and player_x > lanes[0].x:
-                    self.player.rect.x -= const.STEERING_SPEED
-                    # player.rect.x = player_x
-                # and player_x < lanes[-1].x + lanes[-1].width - PLAYER_WIDTH:
-                if keys[pygame.K_RIGHT]:
-                    self.player.rect.x += const.STEERING_SPEED
-                if const.GODMODE == False:
-                    if pygame.sprite.spritecollide(self.player, self.all_obstacles_list, False, pygame.sprite.collide_rect) or self.grassLeft_obstacle_rect.collidepoint(self.player.rect.x, self.player.rect.y) or self.grassRight_obstacle_rect.collidepoint(self.player.rect.x+self.player.rect.width-5, self.player.rect.y):
-                        common.write_high_score(playerName,self.score)
-                        common.gameOver(self.screen,self.score)
-                        self.moving = False
-                        self.gameOver = True
-                        self.pauseMenu()
-                    # check collision with right and left grass
-                    # if grassLeft_obstacle_rect.collidepoint(player.rect.x, player.rect.y) or grassRight_obstacle_rect.collidepoint(player.rect.x+player.rect.width-5, player.rect.y): #-5 to tune to grass collision
-                    #     common.gameOver(screen,score)
-                    #     self.moving = False
-                    # remove obstacles that collide with >1 other obstacles (to take self collision into account)
-                    collisions = pygame.sprite.groupcollide(
-                        self.all_obstacles_list, self.all_obstacles_list, False, False)
-                    for obstacle in collisions:
-                        if len(collisions[obstacle]) > 1:
-                            obstacle.kill()
-                            self.all_obstacles_list.add(obstacles.loadObstacles(1, const.ROAD_SPEED, const.carsImagePathList, const.carsImagePathList_lidar,
-                                                const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.TILE_HEIGHT, const.BLOCK_WIDTH, const.CAR_LATERAL_CHANCE))
+            self.player_angle += self.player_angle_change
+            # update y of the road map
+            self.map_tiles_cam.update(const.ROAD_SPEED, const.SCREEN_HEIGHT, len(
+                map.map_plan), const.TILE_HEIGHT)  # Alpha 0-255
+            self.map_tiles_lidar.update(const.ROAD_SPEED, const.SCREEN_HEIGHT, len(
+                map.map_plan), const.TILE_HEIGHT)  # 255=no darkening
+            for obstacle in self.all_obstacles_list:
+                wasPassed = obstacle.update(const.SCREEN_HEIGHT, len(
+                    map.map_plan), const.BLOCK_HEIGHT, const.BLOCK_WIDTH, self.lidar, const.ROAD_SPEED)
+                self.score += wasPassed
+            
+            if const.GODMODE == False:
+                if pygame.sprite.spritecollide(self.player, self.all_obstacles_list, False, pygame.sprite.collide_rect) or self.grassLeft_obstacle_rect.collidepoint(self.player.rect.x, self.player.rect.y) or self.grassRight_obstacle_rect.collidepoint(self.player.rect.x+self.player.rect.width-5, self.player.rect.y):
+                    common.write_high_score(self.playerName,self.score)
+                    common.gameOver(self.screen,self.score)
+                    self.moving = False
+                    self.gameOver = True
+                    self.pauseMenu()
+                collisions = pygame.sprite.groupcollide(
+                    self.all_obstacles_list, self.all_obstacles_list, False, False)
+                for obstacle in collisions:
+                    if len(collisions[obstacle]) > 1:
+                        obstacle.kill()
+                        self.all_obstacles_list.add(obstacles.loadObstacles(1, const.ROAD_SPEED, const.carsImagePathList, const.carsImagePathList_lidar,
+                                            const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.TILE_HEIGHT, const.BLOCK_WIDTH, const.CAR_LATERAL_CHANCE))
 
             # Update the display and tick the clock
             if self.lidar == False and self.moving == 1:
                 self.screen.blit(self.fadeFillSurface, (0, 0))
-
+            self.showText(clock)
+        pygame.quit() #quit the game
+        exit() #sys.exit game
+    def showText(self,clock):
             # text display
             font = pygame.font.Font(None, 30)
             text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
             text_alpha = font.render('ALPHA: ' + str(int(self.fadeAlpha)), 1, (0, 0, 255))
-            # text_speedFactor = font.render('SPEED: ' + str(60+(SPEED_FACTOR-1.5)*60) + " KP/H", 1, (255, 255, 255))
             text_speedFactor = font.render('NEED4SPEED', 1, (255, 255, 255))
 
             text_score = font.render('SCORE: ' + str(self.score), 1, (255, 255, 255))
@@ -242,30 +244,46 @@ class Game:
             self.screen.blit(text_score, (70, 160))
             pygame.display.update()
             clock.tick(const.FPS)
-
+    def startMenu(self):
+        self.prepareScreen()
+        self.screen.blit(self.gameOver_menu.image,(self.gameOver_menu.rect.x, self.gameOver_menu.rect.y))
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP or event.key == pygame.K_r:
+                        self.moving = True
+                        self.run()
+                    if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                        pygame.quit() #quit the game
+                        exit() #sys.exit game
+            pygame.display.update()
+            sleep(0.5)
     def pauseMenu(self):
         while True:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                elif event.type == pygame.KEYDOWN:
+                # if event.type == pygame.QUIT:
+                #     self.running = False
+                if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r and self.gameOver == True:
                         # self.running = False
-                        startGame()
+                        initGame()
                     if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                         pygame.quit() #quit the game
                         exit() #sys.exit game
             self.screen.blit(self.gameOver_menu.image,
                                 (self.gameOver_menu.rect.x, self.gameOver_menu.rect.y))
             pygame.display.update()
+            sleep(0.5)
         
-def startGame():
+        
+def initGame():
     pygame.init()
+    pygame.mixer.music.unpause()
     myGame=Game()
-    myGame.run()
+    myGame.startMenu() #run the game
     
     # def main(self):
     #     myGame.run('Igor')
 
 if __name__ == '__main__':
-    startGame()
+    initGame()
