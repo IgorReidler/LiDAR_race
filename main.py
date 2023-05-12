@@ -25,6 +25,8 @@ import map, obstacles, common
 from pygame.locals import *
 import const
 from sys import exit
+from timing import Timer
+
 class Game:
     def __init__(self):
         print("Lets go!")
