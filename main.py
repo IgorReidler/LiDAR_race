@@ -22,12 +22,8 @@
 
 #TODO:
 #create lidar images - lanes, cars, obstacles
-#refactor startMenu from running and moving flag to class functions 
-#score mechanism - count passed cars 
 #add obstacles: EU pallette
 #start menu - Update and fix keys
-#start - any key pressed, not only arrows
-#option to restart game without re-launching
 
 import pygame
 import map, obstacles, common
@@ -149,6 +145,7 @@ class Game:
 
         # main loop
         while self.running:
+            # read keys
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -173,7 +170,6 @@ class Game:
                     if event.key == pygame.K_DOWN and self.moving:  # decrease speed
                         const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
                             -1.0, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
-
             keys = pygame.key.get_pressed()
                 # steer the player car with left and right arrows
             if keys[pygame.K_LEFT]:  # and player_x > lanes[0].x:
@@ -211,11 +207,7 @@ class Game:
             
             if const.GODMODE == False:
                 if pygame.sprite.spritecollide(self.player, self.all_obstacles_list, False, pygame.sprite.collide_rect) or self.grassLeft_obstacle_rect.collidepoint(self.player.rect.x, self.player.rect.y) or self.grassRight_obstacle_rect.collidepoint(self.player.rect.x+self.player.rect.width-5, self.player.rect.y):
-                    common.write_high_score(self.playerName,self.score)
-                    common.gameOver(self.screen,self.score)
-                    self.moving = False
-                    self.gameOver = True
-                    self.pauseMenu()
+                    self.collide()
                 collisions = pygame.sprite.groupcollide(
                     self.all_obstacles_list, self.all_obstacles_list, False, False)
                 for obstacle in collisions:
@@ -230,6 +222,12 @@ class Game:
             self.showText(clock)
         pygame.quit() #quit the game
         exit() #sys.exit game
+    def collide(self):
+        common.write_high_score(self.playerName,self.score)
+        common.gameOver(self.screen,self.score)
+        self.moving = False
+        self.gameOver = True
+        self.pauseMenu()
     def showText(self,clock):
             # text display
             font = pygame.font.Font(None, 30)
@@ -257,7 +255,7 @@ class Game:
                         pygame.quit() #quit the game
                         exit() #sys.exit game
             pygame.display.update()
-            sleep(0.5)
+            sleep(0.2)
     def pauseMenu(self):
         while True:
             for event in pygame.event.get():
