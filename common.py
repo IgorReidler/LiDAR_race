@@ -5,8 +5,8 @@ from datetime import datetime
 
 def gameOver(screen,obstaclesPassed):
     # Draw "Game over" text
-    font1 = pygame.font.Font('freesansbold.ttf', 32)
-    font2 = pygame.font.Font('freesansbold.ttf', 48)
+    font1 = pygame.font.Font('freesansbold.ttf', 48)
+    font2 = pygame.font.Font('freesansbold.ttf', 32)
     text1 = font1.render('Game Over', True, (255, 0, 0))
     text2 = font2.render('You passed '+str(obstaclesPassed)+' true positives!', True, (255, 0, 0))
     textRect1 = text1.get_rect()

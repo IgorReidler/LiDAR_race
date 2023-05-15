@@ -21,7 +21,8 @@
 #THE SOFTWARE.
 
 #TODO:
-#create lidar images - lanes, cars, obstacles
+#map_plan is randomized only once per game, in map.py. Randomize every draw.
+#create lidar images - cars, obstacles
 #add obstacles: EU pallette
 #start menu - Update and fix keys
 
