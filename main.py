@@ -45,14 +45,6 @@ class Game:
         self.map_tiles_lidar = pygame.sprite.Group()
         self.map_tiles=self.map_tiles_cam
         #add all tiles to a map list called map_tiles_cam
-        for row in range(len(map.map_plan)):
-            currentWidth=0
-            for col in range(len(map.map_plan[row])):
-                tile_1 = map.Tile(currentWidth, row, map.map_cam_tiles[map.map_plan[row][col]-1],const.SCREEN_HEIGHT) #xStart=currentWidth
-                tile_2 = map.Tile(currentWidth, row, map.map_lidar_tiles[map.map_plan[row][col]-1],const.SCREEN_HEIGHT) #xStart=currentWidth
-                currentWidth += tile_1.image.get_width()
-                self.map_tiles_cam.add(tile_1)
-                self.map_tiles_lidar.add(tile_2)
         self.lidar=False
         self.gameOver=False
         self.score=0 #number of obstacles passed (used for score calculation)
@@ -62,17 +54,35 @@ class Game:
         self.lidarMask = pygame.image.load(const.LIDARMASKPATH)
         self.lidarMask600 = pygame.transform.scale(self.lidarMask, (900,600))
         self.lidarMask600_rect=(150,0)
-        # fade to black surface
-        self.fadeFillSurface = pygame.Surface((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))  # , pygame.SRCALPHA)
-        self.fadeFillSurface.fill((0, 0, 0, 0))
 
         #init player
         self.player  = pygame.sprite.Group()
         self.player_image = pygame.image.load(r'media/ego_vehicle.png')
-        self.player.image = self.player_image
+        self.player.image = self.player_image#.convert() #converting <<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>
         self.player.rect = self.player.image.get_rect()
         self.player.rect.x = const.SCREEN_WIDTH/2
         self.player.rect.y = const.SCREEN_HEIGHT - const.PLAYER_HEIGHT - 10
+
+        self.all_obstacles_list=pygame.sprite.Group()
+        # Create car obstacles list
+        self.cars_list=obstacles.loadObstacles(const.NUM_OBSTACLES_CARS,const.ROAD_SPEED, const.carsImagePathList,const.carsImagePathList_lidar,const.CAR_SPEED_DELTA_FROM,const.CAR_SPEED_DELTA_TO,const.TILE_HEIGHT,const.BLOCK_WIDTH,const.CAR_LATERAL_CHANCE)
+        # Create static obstacles list (cones, EU pallete etc..)
+        self.static_obstacles_list=obstacles.loadObstacles(const.NUM_OBSTACLES_STATIONARY,const.ROAD_SPEED,const.stationaryObstaclesImagePathList,const.stationaryObstaclesImagePathList_lidar,0,0,const.TILE_HEIGHT,const.BLOCK_WIDTH,0)
+        # add all lists to all obstacles list
+        self.all_obstacles_list.add(self.cars_list, self.static_obstacles_list)
+
+        self.prepareScreen()
+
+        for row in range(len(map.map_plan)):
+            currentWidth=0
+            for col in range(len(map.map_plan[row])):
+                tile_1 = map.Tile(currentWidth, row, map.map_cam_tiles[map.map_plan[row][col]-1],const.SCREEN_HEIGHT) #xStart=currentWidth
+                if self.lidar:
+                    tile_2 = map.Tile(currentWidth, row, map.map_lidar_tiles[map.map_plan[row][col]-1],const.SCREEN_HEIGHT) #xStart=currentWidth
+                currentWidth += tile_1.image.get_width()
+                self.map_tiles_cam.add(tile_1)
+                if self.lidar:
+                    self.map_tiles_lidar.add(tile_2)
         #init menus
         self.start_menu  = pygame.sprite.Group()
         self.start_menu_image = pygame.image.load(r'media/menu.png')
@@ -94,13 +104,6 @@ class Game:
         self.grassLeft_obstacle_rect = pygame.Rect(0, 0, 300, const.SCREEN_HEIGHT)
         self.grassRight_obstacle_rect = pygame.Rect(900, 0, 300, const.SCREEN_HEIGHT)
 
-        self.all_obstacles_list=pygame.sprite.Group()
-        # Create car obstacles list
-        self.cars_list=obstacles.loadObstacles(const.NUM_OBSTACLES_CARS,const.ROAD_SPEED, const.carsImagePathList,const.carsImagePathList_lidar,const.CAR_SPEED_DELTA_FROM,const.CAR_SPEED_DELTA_TO,const.TILE_HEIGHT,const.BLOCK_WIDTH,const.CAR_LATERAL_CHANCE)
-        # Create static obstacles list (cones, EU pallete etc..)
-        self.static_obstacles_list=obstacles.loadObstacles(const.NUM_OBSTACLES_STATIONARY,const.ROAD_SPEED,const.stationaryObstaclesImagePathList,const.stationaryObstaclesImagePathList_lidar,0,0,const.TILE_HEIGHT,const.BLOCK_WIDTH,0)
-        # add all lists to all obstacles list
-        self.all_obstacles_list.add(self.cars_list, self.static_obstacles_list)
 
         # Set up the player
         self.player_x =const.SCREEN_WIDTH // 2 - const.PLAYER_WIDTH // 2
@@ -116,9 +119,13 @@ class Game:
         # pygame.mixer.music.play(-1)
         # pygame.mixer.music.pause()
         self.lidar=False
+        # fade to black surface
+        self.fadeFillSurface = pygame.Surface((const.SCREEN_WIDTH, const.SCREEN_HEIGHT)).convert()  # , pygame.SRCALPHA) #converting <<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>
+        self.fadeFillSurface.fill((0, 0, 0, 0))
+    
     def prepareScreen(self):
-        self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
-        # screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+        # self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT), pygame.FULLSCREEN)
         pygame.display.set_caption("LiDAR race")
 
         # Set up the clock
@@ -126,8 +133,7 @@ class Game:
         #after key event
         self.map_tiles.draw(self.screen)
         # draw the player car
-        self.screen.blit(self.player.image,
-                    (self.player.rect.x, self.player.rect.y))
+        self.screen.blit(self.player.image,(self.player.rect.x, self.player.rect.y))
         # mask by arc
         self.all_obstacles_list.draw(self.screen)
         if self.lidar:  # if lidar, mask with pie from an image
