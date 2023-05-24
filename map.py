@@ -6,7 +6,7 @@ import random
 class Tile(pygame.sprite.Sprite):
     def __init__(self, xStart, y, image,screen_height):
         super().__init__()
-        self.image = pygame.image.load(image).convert()
+        self.image = pygame.image.load(image)
         tile_height=400#self.image.get_height()
         self.rect = self.image.get_rect()
         self.rect.x = xStart#x * tile_width
