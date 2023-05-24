@@ -167,10 +167,13 @@ class Game:
                         self.player_angle_change = -0.2
                     if event.key == pygame.K_UP and self.moving:  # increase speed
                         const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
-                            1.0, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
+                            const.SPEED_STEP, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
+                        break
                     if event.key == pygame.K_DOWN and self.moving:  # decrease speed
-                        const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
-                            -1.0, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
+                        if const.SPEED_FACTOR-const.SPEED_STEP>0:
+                            const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
+                                -const.SPEED_STEP, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
+                            break
             keys = pygame.key.get_pressed()
                 # steer the player car with left and right arrows
             if keys[pygame.K_LEFT]:  # and player_x > lanes[0].x:
@@ -243,9 +246,10 @@ class Game:
             self.screen.blit(text_score, (70, 160))
             pygame.display.update()
             clock.tick(const.FPS)
+    
     def startMenu(self):
         self.prepareScreen()
-        self.screen.blit(self.gameOver_menu.image,(self.gameOver_menu.rect.x, self.gameOver_menu.rect.y))
+        self.screen.blit(self.start_menu.image,(self.start_menu.rect.x, self.start_menu.rect.y))
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -257,6 +261,7 @@ class Game:
                         exit() #sys.exit game
             pygame.display.update()
             sleep(0.2)
+    
     def pauseMenu(self):
         while True:
             for event in pygame.event.get():
@@ -279,7 +284,7 @@ def initGame():
     pygame.init()
     pygame.mixer.music.unpause()
     myGame=Game()
-    myGame.startMenu() #run the game
+    myGame.startMenu()
     
     # def main(self):
     #     myGame.run('Igor')
