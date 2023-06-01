@@ -162,9 +162,9 @@ class Game:
                         self.map_tiles = self.map_tiles_cam  # change map tiles to camera
                         break
                     if event.key == pygame.K_LEFT:
-                        self.player_angle_change = 0.2
+                        self.player_angle = 20
                     elif event.key == pygame.K_RIGHT:
-                        self.player_angle_change = -0.2
+                        self.player_angle = -20
                     if event.key == pygame.K_UP and self.moving:  # increase speed
                         const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
                             const.SPEED_STEP, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
@@ -198,7 +198,6 @@ class Game:
             self.fadeFillSurface.set_alpha(
                 fadeAlpha)  # set alpha for darkening
 
-            self.player_angle += self.player_angle_change
             # update y of the road map
             self.map_tiles_cam.update(const.ROAD_SPEED, const.SCREEN_HEIGHT, len(
                 map.map_plan), const.TILE_HEIGHT)  # Alpha 0-255
