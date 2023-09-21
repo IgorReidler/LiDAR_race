@@ -5,8 +5,7 @@ import random
 # init obstacle
 def loadObstacles(NUM_OBSTACLES,obstacleSpeed,obstacleImagePathList,obstacleImagePathList_lidar,car_SPEED_DELTA_FROM,car_SPEED_DELTA_TO,TILE_HEIGHT,BLOCK_WIDTH,car_lateral_chance):
     obstacles_list = pygame.sprite.Group()
-    for i in range(NUM_OBSTACLES): #cars
-        # This represents a block
+    for i in range(NUM_OBSTACLES):
         speedDelta=random.uniform(car_SPEED_DELTA_FROM,car_SPEED_DELTA_TO) #random car speed delta
         block = Obstacle(obstacleSpeed,obstacleImagePathList,obstacleImagePathList_lidar,speedDelta,car_lateral_chance)
         # Set a random location for the block

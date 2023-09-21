@@ -22,9 +22,7 @@
 
 #TODO:
 #map_plan is randomized only once per game, in map.py. Randomize every draw.
-#create lidar images - cars, obstacles
 #add obstacles: EU pallette
-#start menu - Update and fix keys
 
 import pygame
 import map, obstacles, common
@@ -32,6 +30,8 @@ from pygame.locals import *
 import const
 from sys import exit
 from time import sleep
+import os
+os.environ['PNG_IGNORE_WARNINGS'] = '1' # to suppress warnings about PNG files
 
 class Game:
     def __init__(self):
@@ -87,9 +87,7 @@ class Game:
         self.gameOver_menu.rect = self.player.image.get_rect()
         self.gameOver_menu.rect.x=const.SCREEN_WIDTH/2-self.start_menu_image.get_width()/2
         self.gameOver_menu.rect.y=const.SCREEN_HEIGHT/2-self.start_menu_image.get_height()/2
-        # Load and play music
-        pygame.mixer.init()
-        pygame.mixer.music.load(const.musicPath)
+    
         # create an obstacle to cover grass
         self.grassLeft_obstacle_rect = pygame.Rect(0, 0, 300, const.SCREEN_HEIGHT)
         self.grassRight_obstacle_rect = pygame.Rect(900, 0, 300, const.SCREEN_HEIGHT)
@@ -112,9 +110,9 @@ class Game:
         self.road_x = const.SCREEN_WIDTH // 2 - self.road_width // 2
         self.road_y = -self.road_height + self.player_y + const.PLAYER_HEIGHT + 10
         # Load and play music
-        # pygame.mixer.music.load(r'media/raceGame1.mp3')
-        # pygame.mixer.music.play(-1)
-        # pygame.mixer.music.pause()
+        pygame.mixer.music.load(const.musicPath)
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.pause()
         self.lidar=False
     def prepareScreen(self):
         self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
@@ -139,6 +137,8 @@ class Game:
                 self.player.rect.centerx+const.ARCWIDTH/2, 0, 600, 600))
     
     def run(self):
+        #unpause music
+        pygame.mixer.music.unpause()
         # Set up the clock
         clock = pygame.time.Clock()
         frameCount=0
@@ -281,12 +281,8 @@ class Game:
         
 def initGame():
     pygame.init()
-    pygame.mixer.music.unpause()
     myGame=Game()
     myGame.startMenu()
-    
-    # def main(self):
-    #     myGame.run('Igor')
 
 if __name__ == '__main__':
     initGame()

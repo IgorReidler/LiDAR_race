@@ -11,7 +11,7 @@ BLOCK_HEIGHT=88
 CAR_LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of cars
 ARCWIDTH=900
 #speed related
-FPS=60
+FPS=90
 SPEED_FACTOR=1
 # NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
 STEERING_SPEED=int(10*50/FPS)
@@ -22,6 +22,7 @@ SPEED_STEP=0.2
 # obstacles
 carsImagePathList=[r'media/car1.png', r'media/car2.png',r'media/car3_80.png']
 carsImagePathList_lidar=[r'media/car1_lidar.png', r'media/car2_lidar.png',r'media/car3_80_lidar.png']
+# stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
 stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
 stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png',r'media/tire1_55.png']
 NUM_OBSTACLES_CARS=5 #number of cars on the road in each vertical tile row
