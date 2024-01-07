@@ -194,7 +194,7 @@ class Game:
                     self.player.rect.centerx+const.ARCWIDTH/2, 0, 600, 600))
 
             frameCount += 1  # for darkening
-            fadeAlpha = min(255, int(frameCount/10))  # calc alpha for darkening
+            fadeAlpha = min(255, int(frameCount/const.darkeningFactor))  # calc alpha for darkening
             self.fadeFillSurface.set_alpha(
                 fadeAlpha)  # set alpha for darkening
 

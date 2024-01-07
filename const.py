@@ -19,6 +19,7 @@ ROAD_SPEED=int(10*50/FPS*SPEED_FACTOR)
 CAR_SPEED_DELTA_FROM=int(-1.5*50/FPS*SPEED_FACTOR)
 CAR_SPEED_DELTA_TO=int(-2*50/FPS*SPEED_FACTOR)
 SPEED_STEP=0.2
+darkeningFactor=4
 # obstacles
 carsImagePathList=[r'media/car1.png', r'media/car2.png',r'media/car3_80.png']
 carsImagePathList_lidar=[r'media/car1_lidar.png', r'media/car2_lidar.png',r'media/car3_80_lidar.png']
