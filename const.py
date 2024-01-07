@@ -1,5 +1,4 @@
 # #define constants
-GODMODE=False #no collisions with obstacles, for testing
 SCREEN_WIDTH = 1200 #1920
 SCREEN_HEIGHT = 600 #1080
 DRIVE_WIDTH=600
@@ -10,6 +9,9 @@ BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
 CAR_LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of cars
 ARCWIDTH=900
+#flags
+GODMODE=False #no collisions with obstacles, for testing
+obstaclesCollideKillFlag=False
 #speed related
 FPS=90
 SPEED_FACTOR=1

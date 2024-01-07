@@ -213,11 +213,12 @@ class Game:
                     self.collide()
                 collisions = pygame.sprite.groupcollide(
                     self.all_obstacles_list, self.all_obstacles_list, False, False)
-                for obstacle in collisions:
-                    if len(collisions[obstacle]) > 1:
-                        obstacle.kill()
-                        self.all_obstacles_list.add(obstacles.loadObstacles(1, const.ROAD_SPEED, const.carsImagePathList, const.carsImagePathList_lidar,
-                                            const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.TILE_HEIGHT, const.BLOCK_WIDTH, const.CAR_LATERAL_CHANCE))
+                if const.obstaclesCollideKillFlag:
+                    for obstacle in collisions:
+                        if len(collisions[obstacle]) > 1:
+                            obstacle.kill()
+                            self.all_obstacles_list.add(obstacles.loadObstacles(1, const.ROAD_SPEED, const.carsImagePathList, const.carsImagePathList_lidar,
+                                                const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.TILE_HEIGHT, const.BLOCK_WIDTH, const.CAR_LATERAL_CHANCE))
 
             # Update the display and tick the clock
             if self.lidar == False and self.moving == 1:
