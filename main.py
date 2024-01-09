@@ -31,11 +31,14 @@ import const
 from sys import exit
 from time import sleep
 import os
+import cProfile
 os.environ['PNG_IGNORE_WARNINGS'] = '1' # to suppress warnings about PNG files
 
 class Game:
     def __init__(self):
+        self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
         print("Lets go!")
+        self.pr = cProfile.Profile()
         self.playerName='Player1'
         self.running = True
         self.moving = False
@@ -59,7 +62,7 @@ class Game:
         self.fadeAlpha=0 # used to calculate fadeAlphaMax 
         self.player_angle = 0
         self.player_angle_change = 0
-        self.lidarMask = pygame.image.load(const.LIDARMASKPATH)
+        self.lidarMask = pygame.image.load(const.LIDARMASKPATH).convert()
         self.lidarMask600 = pygame.transform.scale(self.lidarMask, (900,600))
         self.lidarMask600_rect=(150,0)
         # fade to black surface
@@ -68,21 +71,21 @@ class Game:
 
         #init player
         self.player  = pygame.sprite.Group()
-        self.player_image = pygame.image.load(r'media/ego_vehicle.png')
+        self.player_image = pygame.image.load(r'media/ego_vehicle.png').convert()
         self.player.image = self.player_image
         self.player.rect = self.player.image.get_rect()
         self.player.rect.x = const.SCREEN_WIDTH/2
         self.player.rect.y = const.SCREEN_HEIGHT - const.PLAYER_HEIGHT - 10
         #init menus
         self.start_menu  = pygame.sprite.Group()
-        self.start_menu_image = pygame.image.load(r'media/menu.png')
+        self.start_menu_image = pygame.image.load(r'media/menu.png').convert()
         self.start_menu.image = self.start_menu_image
         self.start_menu.rect = self.player.image.get_rect()
         self.start_menu.rect.x=const.SCREEN_WIDTH/2-self.start_menu_image.get_width()/2
         self.start_menu.rect.y=const.SCREEN_HEIGHT/2-self.start_menu_image.get_height()/2
 
         self.gameOver_menu  = pygame.sprite.Group()
-        self.gameOver_menu_image = pygame.image.load(r'media/gameOver_menu.png')
+        self.gameOver_menu_image = pygame.image.load(r'media/gameOver_menu.png').convert()
         self.gameOver_menu.image = self.gameOver_menu_image
         self.gameOver_menu.rect = self.player.image.get_rect()
         self.gameOver_menu.rect.x=const.SCREEN_WIDTH/2-self.start_menu_image.get_width()/2
@@ -115,7 +118,6 @@ class Game:
         pygame.mixer.music.pause()
         self.lidar=False
     def prepareScreen(self):
-        self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
         # screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
         pygame.display.set_caption("LiDAR race")
 
@@ -147,11 +149,14 @@ class Game:
         # main loop
         while self.running:
             # read keys
-            for event in pygame.event.get():
+            for event in pygame.event.get([pygame.KEYDOWN]):
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                        self.pr.disable()  # Stop the profiler
+                        # Print the profiling results
+                        self.pr.print_stats(sort='time')
                         self.running = False
                     if event.key == pygame.K_SPACE and self.lidar == False:
                         self.lidar = True
@@ -237,25 +242,27 @@ class Game:
             font = pygame.font.Font(None, 30)
             text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
             text_alpha = font.render('ALPHA: ' + str(int(self.fadeAlpha)), 1, (0, 0, 255))
-            text_speedFactor = font.render('NEED4SPEED', 1, (255, 255, 255))
+            # text_speedFactor = font.render('NEED4SPEED', 1, (255, 255, 255))
 
             text_score = font.render('SCORE: ' + str(self.score), 1, (255, 255, 255))
             self.screen.blit(text_fps, (70, 70))
-            self.screen.blit(text_alpha, (70, 100))
-            self.screen.blit(text_speedFactor, (70, 130))
-            self.screen.blit(text_score, (70, 160))
+            # self.screen.blit(text_alpha, (70, 100))
+            # self.screen.blit(text_speedFactor, (70, 130))
+            self.screen.blit(text_score, (70, 100))
             pygame.display.update()
             clock.tick(const.FPS)
     
     def startMenu(self):
+        # self.pr = cProfile.Profile()
         self.prepareScreen()
         self.screen.blit(self.start_menu.image,(self.start_menu.rect.x, self.start_menu.rect.y))
         while True:
-            for event in pygame.event.get():
+            for event in pygame.event.get([pygame.KEYDOWN]):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE or event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP or event.key == pygame.K_r:
                         self.moving = True
-                        self.run()
+                        self.pr.enable()  # Start the profiler
+                        self.run()  # The method you want to profile
                     if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                         pygame.quit() #quit the game
                         exit() #sys.exit game
