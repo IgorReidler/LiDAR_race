@@ -36,9 +36,10 @@ os.environ['PNG_IGNORE_WARNINGS'] = '1' # to suppress warnings about PNG files
 
 class Game:
     def __init__(self):
-        self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
         print("Lets go!")
+        self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
         self.pr = cProfile.Profile()
+        self.prev_player_x = None
         self.playerName='Player1'
         self.running = True
         self.moving = False
@@ -126,8 +127,9 @@ class Game:
         #after key event
         self.map_tiles.draw(self.screen)
         # draw the player car
+        # If the x-coordinate has changed, draw the player car
         self.screen.blit(self.player.image,
-                    (self.player.rect.x, self.player.rect.y))
+                        (self.player.rect.x, self.player.rect.y))
         # mask by arc
         self.all_obstacles_list.draw(self.screen)
         if self.lidar:  # if lidar, mask with pie from an image
@@ -229,6 +231,8 @@ class Game:
             if self.lidar == False and self.moving == 1:
                 self.screen.blit(self.fadeFillSurface, (0, 0))
             self.showText(clock)
+            # Update the previous x-coordinate for the next frame
+            self.prev_player_x = self.player.rect.x
         pygame.quit() #quit the game
         exit() #sys.exit game
     def collide(self):

@@ -13,7 +13,7 @@ ARCWIDTH=900
 GODMODE=False #no collisions with obstacles, for testing
 obstaclesCollideKillFlag=False
 #speed related
-FPS=60
+FPS=70
 SPEED_FACTOR=1
 # NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
 STEERING_SPEED=int(10*50/FPS)
