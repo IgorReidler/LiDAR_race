@@ -31,14 +31,14 @@ import const
 from sys import exit
 from time import sleep
 import os
-import cProfile
+# import cProfile
 os.environ['PNG_IGNORE_WARNINGS'] = '1' # to suppress warnings about PNG files
 
 class Game:
     def __init__(self):
         print("Lets go!")
         self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
-        self.pr = cProfile.Profile()
+        # self.pr = cProfile.Profile()
         self.prev_player_x = None
         self.playerName='Player1'
         self.running = True
@@ -119,7 +119,7 @@ class Game:
         pygame.mixer.music.pause()
         self.lidar=False
     def prepareScreen(self):
-        # screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+        screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT), pygame.FULLSCREEN)
         pygame.display.set_caption("LiDAR race")
 
         # Set up the clock
@@ -156,9 +156,9 @@ class Game:
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
-                        self.pr.disable()  # Stop the profiler
+                        # self.pr.disable()  # Stop the profiler
                         # Print the profiling results
-                        self.pr.print_stats(sort='time')
+                        # self.pr.print_stats(sort='time')
                         self.running = False
                     if event.key == pygame.K_SPACE and self.lidar == False:
                         self.lidar = True
@@ -265,7 +265,7 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE or event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP or event.key == pygame.K_r:
                         self.moving = True
-                        self.pr.enable()  # Start the profiler
+                        # self.pr.enable()  # Start the profiler
                         self.run()  # The method you want to profile
                     if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                         pygame.quit() #quit the game
