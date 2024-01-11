@@ -9,6 +9,7 @@ BLOCK_WIDTH=36
 BLOCK_HEIGHT=88
 CAR_LATERAL_CHANCE=0.2 #DISABLED BY DEFAULT = 0, Chance of lateral movement of cars
 ARCWIDTH=900
+
 #flags
 GODMODE=False #no collisions with obstacles, for testing
 obstaclesCollideKillFlag=False
@@ -28,10 +29,11 @@ carsImagePathList_lidar=[r'media/car1_lidar.png', r'media/car2_lidar.png',r'medi
 # stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
 stationaryObstaclesImagePathList=[r'media/cone1_small.png',r'media/tire1_55.png']
 stationaryObstaclesImagePathList_lidar=[r'media/cone1_small.png',r'media/tire1_55.png']
-NUM_OBSTACLES_CARS=5 #number of cars on the road in each vertical tile row
+NUM_OBSTACLES_CARS=3 #number of cars on the road in each vertical tile row
 NUM_OBSTACLES_STATIONARY=2 #number of stationary obstacles (cones, EU palettes) in each vertical row
 # sound paths
 soundUpPath='media/powerUp1.mp3'
 soundDownPath='media/powerDown2.mp3'
 musicPath='media/raceGame1.mp3'
 LIDARMASKPATH=r'media/arcMask_stretched.png'
+MIN_FADE_ALPHA=180

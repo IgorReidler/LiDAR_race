@@ -21,10 +21,12 @@
 #THE SOFTWARE.
 
 #TODO:
-#add a limit to alpha
 #Money concept
 #BMW, AUDI, VWBUZZ
+#sound when passing a car
 #iOne, iTwo, Competitor
+#Car turns at an angle
+#Car steering speed according to speed
 
 #Purchase menu
 
@@ -126,7 +128,7 @@ class Game:
         pygame.mixer.music.pause()
         self.lidar=False
     def prepareScreen(self):
-        screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT), pygame.FULLSCREEN)
+        # screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT), pygame.FULLSCREEN)
         pygame.display.set_caption("LiDAR race")
 
         # Set up the clock
@@ -192,8 +194,12 @@ class Game:
                 # steer the player car with left and right arrows
             if keys[pygame.K_LEFT]:  # and player_x > lanes[0].x:
                 self.player.rect.x -= const.STEERING_SPEED
+                # turn the car by 30deg
+                self.player_angle_change = 30
             if keys[pygame.K_RIGHT]:
                 self.player.rect.x += const.STEERING_SPEED
+                self.player_angle_change = 30
+                # turn the car by 30deg
             self.map_tiles.draw(self.screen)
             # draw the player car
             self.screen.blit(self.player.image,(self.player.rect.x, self.player.rect.y))
@@ -208,7 +214,9 @@ class Game:
                     self.player.rect.centerx+const.ARCWIDTH/2, 0, 600, 600))
 
             frameCount += 1  # for darkening
-            fadeAlpha = min(255, int(frameCount/const.darkeningFactor))  # calc alpha for darkening
+            # if fadeAlpha > 100:
+            fadeAlpha = min(const.MIN_FADE_ALPHA, int(frameCount/const.darkeningFactor))  # calc alpha for darkening
+            # print(fadeAlpha)
             self.fadeFillSurface.set_alpha(
                 fadeAlpha)  # set alpha for darkening
 
