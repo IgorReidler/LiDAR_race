@@ -177,10 +177,6 @@ class Game:
                         self.lidar = False
                         self.map_tiles = self.map_tiles_cam  # change map tiles to camera
                         break
-                    if event.key == pygame.K_LEFT:
-                        self.player_angle = 20
-                    elif event.key == pygame.K_RIGHT:
-                        self.player_angle = -20
                     if event.key == pygame.K_UP and self.moving:  # increase speed
                         const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
                             const.SPEED_STEP, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
