@@ -21,6 +21,13 @@
 #THE SOFTWARE.
 
 #TODO:
+#add a limit to alpha
+#Money concept
+#BMW, AUDI, VWBUZZ
+#iOne, iTwo, Competitor
+
+#Purchase menu
+
 #map_plan is randomized only once per game, in map.py. Randomize every draw.
 #add obstacles: EU pallette
 
