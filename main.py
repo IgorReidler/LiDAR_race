@@ -159,33 +159,19 @@ class Game:
 
         # main loop
         while self.running:
-            # read keys
-            for event in pygame.event.get([pygame.KEYDOWN]):
-                if event.type == pygame.QUIT:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and (event.key == pygame.K_q or event.key == pygame.K_ESCAPE)):
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
-                        # self.pr.disable()  # Stop the profiler
-                        # Print the profiling results
-                        # self.pr.print_stats(sort='time')
-                        self.running = False
-                    if event.key == pygame.K_SPACE and self.lidar == False:
-                        self.lidar = True
-                        self.map_tiles = self.map_tiles_lidar  # change map tiles to lidar
-                        break
-                    if event.key == pygame.K_SPACE and self.lidar == True:
-                        self.lidar = False
-                        self.map_tiles = self.map_tiles_cam  # change map tiles to camera
-                        break
-                    if event.key == pygame.K_UP and self.moving:  # increase speed
-                        const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
-                            const.SPEED_STEP, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
-                        break
-                    if event.key == pygame.K_DOWN and self.moving:  # decrease speed
-                        if const.SPEED_FACTOR-const.SPEED_STEP>0:
+                    if event.key == pygame.K_SPACE:
+                        self.lidar = not self.lidar
+                        self.map_tiles = self.map_tiles_lidar if self.lidar else self.map_tiles_cam
+                    elif event.key in (pygame.K_UP, pygame.K_DOWN) and self.moving:
+                        speed_step = const.SPEED_STEP if event.key == pygame.K_UP else -const.SPEED_STEP
+                        if const.SPEED_FACTOR - speed_step > 0 or event.key == pygame.K_UP:
                             const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
-                                -const.SPEED_STEP, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
-                            break
+                                speed_step, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
+
             keys = pygame.key.get_pressed()
                 # steer the player car with left and right arrows
             if keys[pygame.K_LEFT]:  # and player_x > lanes[0].x:
