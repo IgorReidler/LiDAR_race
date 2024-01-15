@@ -54,8 +54,14 @@ def speedChange(speed_delta,fps,speed_factor, road_speed, vehicle_speed_delta_fr
 
     return speed_factor, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to
 
-def drawText(screen):
+def drawText(screen,text,position):
+    if position not in ['center', 'side']: #validating position input
+        raise ValueError("Position must be either 'center' or 'side'")
+    if position == 'center':
+        positionArgument=(screen.get_width()/2, screen.get_height()/2)
+    if position == 'side':
+        positionArgument=(screen.get_width()/4, screen.get_height()/4)
     font = pygame.font.Font(None, 72)  # Create a Font object with the default font and a size of 72
-    text_surface = font.render('Key was pressed!', True, (255, 255, 255))  # Create a white Surface with the text
-    text_rect = text_surface.get_rect(center=(screen.get_width()/2, screen.get_height()/2))  # Get the rectangle of the text surface and set its center to the center of the screen
+    text_surface = font.render(text, True, (255, 255, 255))  # Create a white Surface with the text
+    text_rect = text_surface.get_rect(center=positionArgument)  # Get the rectangle of the text surface and set its center to the center of the screen
     screen.blit(text_surface, text_rect)  # Draw the text Surface onto the screen at the calculated position

@@ -40,3 +40,4 @@ LIDARMASKPATH_itwo=r'media/arcMask_stretched.png'
 LIDARMASKPATH_ione=r'media/arcMask_iONE.png'#r'media/arcMask_stretched.png'
 LIDARMASKPATH_competitor=r'media/arcMask_competitor_gray.png'#r'media/arcMask_stretched.png'
 MIN_FADE_ALPHA=180
+MAINMESSAGETIME=70 #main message display time in frames
