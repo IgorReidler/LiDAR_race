@@ -53,3 +53,9 @@ def speedChange(speed_delta,fps,speed_factor, road_speed, vehicle_speed_delta_fr
     speedChangeSound.play()
 
     return speed_factor, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to
+
+def drawText(screen):
+    font = pygame.font.Font(None, 72)  # Create a Font object with the default font and a size of 72
+    text_surface = font.render('Key was pressed!', True, (255, 255, 255))  # Create a white Surface with the text
+    text_rect = text_surface.get_rect(center=(screen.get_width()/2, screen.get_height()/2))  # Get the rectangle of the text surface and set its center to the center of the screen
+    screen.blit(text_surface, text_rect)  # Draw the text Surface onto the screen at the calculated position
