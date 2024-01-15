@@ -12,9 +12,10 @@ ARCWIDTH=900
 
 #flags
 GODMODE=False #no collisions with obstacles, for testing
+PROFILEMODE=False #
 obstaclesCollideKillFlag=False
 #speed related
-FPS=90
+FPS=70
 SPEED_FACTOR=1
 # NUM_OBSTACLES=int(5*50/FPS*SPEED_FACTOR)
 STEERING_SPEED=int(10*50/FPS)
@@ -35,5 +36,5 @@ NUM_OBSTACLES_STATIONARY=2 #number of stationary obstacles (cones, EU palettes) 
 soundUpPath='media/powerUp1.mp3'
 soundDownPath='media/powerDown2.mp3'
 musicPath='media/raceGame1.mp3'
-LIDARMASKPATH=r'media/arcMask_stretched.png'
+LIDARMASKPATH=r'media/arcMask_iONE.png'#r'media/arcMask_stretched.png'
 MIN_FADE_ALPHA=180

@@ -5,16 +5,16 @@ from datetime import datetime
 
 def gameOver(screen,obstaclesPassed):
     # Draw "Game over" text
-    font1 = pygame.font.Font('freesansbold.ttf', 48)
-    font2 = pygame.font.Font('freesansbold.ttf', 32)
-    text1 = font1.render('Game Over', True, (255, 0, 0))
-    text2 = font2.render('You passed '+str(obstaclesPassed)+' true positives!', True, (255, 0, 0))
-    textRect1 = text1.get_rect()
-    textRect2 = text2.get_rect()
-    textRect1.center = (600, 200)
-    textRect2.center = (600, 250)
-    screen.blit(text1, textRect1)
-    screen.blit(text2, textRect2)
+    # font1 = pygame.font.Font('freesansbold.ttf', 48)
+    # font2 = pygame.font.Font('freesansbold.ttf', 32)
+    # text1 = font1.render('Game Over', True, (255, 0, 0))
+    # text2 = font2.render('You passed '+str(obstaclesPassed)+' true positives!', True, (255, 0, 0))
+    # textRect1 = text1.get_rect()
+    # textRect2 = text2.get_rect()
+    # textRect1.center = (600, 200)
+    # textRect2.center = (600, 250)
+    # screen.blit(text1, textRect1)
+    # screen.blit(text2, textRect2)
     # Update the display
     pygame.display.flip()
     #stop the music
@@ -22,7 +22,7 @@ def gameOver(screen,obstaclesPassed):
     # Load and play sound
     gameOverSound = pygame.mixer.Sound('media/game-over-38511.mp3')
     gameOverSound.play()
-    time.sleep(4)
+    # time.sleep(1)
 
 def write_high_score(playerName, highScore): #This function was entirely written by bing (GPT v4.0 on 27 Apr 2023)
     if not os.path.exists('highscore.txt'):

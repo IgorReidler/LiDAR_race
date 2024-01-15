@@ -40,18 +40,26 @@ import const
 from sys import exit
 from time import sleep
 import os
-# import cProfile
+if const.PROFILEMODE:
+    import cProfile
+    import pstats
+    import io
+
+
 os.environ['PNG_IGNORE_WARNINGS'] = '1' # to suppress warnings about PNG files
 
 class Game:
     def __init__(self):
         print("Lets go!")
         self.screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
-        # self.pr = cProfile.Profile()
+        if const.PROFILEMODE:
+            self.pr = cProfile.Profile()
+        
         self.prev_player_x = None
         self.playerName='Player1'
         self.running = True
         self.moving = False
+        
         self.highScore=0
         # Create your sprite groups
         self.map_tiles_cam = pygame.sprite.Group()
@@ -137,8 +145,8 @@ class Game:
         self.map_tiles.draw(self.screen)
         # draw the player car
         # If the x-coordinate has changed, draw the player car
-        self.screen.blit(self.player.image,
-                        (self.player.rect.x, self.player.rect.y))
+        # self.screen.blit(self.player.image,
+                        # (self.player.rect.x, self.player.rect.y))
         # mask by arc
         self.all_obstacles_list.draw(self.screen)
         if self.lidar:  # if lidar, mask with pie from an image
@@ -162,6 +170,12 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and (event.key == pygame.K_q or event.key == pygame.K_ESCAPE)):
                     self.running = False
+                    if const.PROFILEMODE:
+                        self.pr.disable()
+                        s = io.StringIO()
+                        ps = pstats.Stats(self.pr, stream=s).sort_stats('time')
+                        ps.print_stats()
+                        print(s.getvalue())
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.lidar = not self.lidar
@@ -171,6 +185,13 @@ class Game:
                         if const.SPEED_FACTOR - speed_step > 0 or event.key == pygame.K_UP:
                             const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO = common.speedChange(
                                 speed_step, const.FPS, const.SPEED_FACTOR, const.ROAD_SPEED, const.CAR_SPEED_DELTA_FROM, const.CAR_SPEED_DELTA_TO, const.soundUpPath, const.soundDownPath)
+                    elif event.key == pygame.K_p:
+                        self.moving = not self.moving
+                        self.pauseMenu()
+                        if self.moving:
+                            pygame.mixer.music.unpause()
+                        else:
+                            pygame.mixer.music.pause()
 
             keys = pygame.key.get_pressed()
                 # steer the player car with left and right arrows
@@ -198,7 +219,6 @@ class Game:
             frameCount += 1  # for darkening
             # if fadeAlpha > 100:
             fadeAlpha = min(const.MIN_FADE_ALPHA, int(frameCount/const.darkeningFactor))  # calc alpha for darkening
-            # print(fadeAlpha)
             self.fadeFillSurface.set_alpha(
                 fadeAlpha)  # set alpha for darkening
 
@@ -237,7 +257,7 @@ class Game:
         common.gameOver(self.screen,self.score)
         self.moving = False
         self.gameOver = True
-        self.pauseMenu()
+        self.gameOverMenu()
     def showText(self,clock):
             # text display
             font = pygame.font.Font(None, 30)
@@ -254,7 +274,6 @@ class Game:
             clock.tick(const.FPS)
     
     def startMenu(self):
-        # self.pr = cProfile.Profile()
         self.prepareScreen()
         self.screen.blit(self.start_menu.image,(self.start_menu.rect.x, self.start_menu.rect.y))
         while True:
@@ -262,7 +281,8 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE or event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP or event.key == pygame.K_r:
                         self.moving = True
-                        # self.pr.enable()  # Start the profiler
+                        if const.PROFILEMODE:
+                            self.pr.enable()  # Start the profiler
                         self.run()  # The method you want to profile
                     if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                         pygame.quit() #quit the game
@@ -271,22 +291,30 @@ class Game:
             sleep(0.2)
     
     def pauseMenu(self):
+        self.prepareScreen()
+        self.screen.blit(self.start_menu.image,(self.start_menu.rect.x, self.start_menu.rect.y))
         while True:
-            for event in pygame.event.get():
-                # if event.type == pygame.QUIT:
-                #     self.running = False
+            for event in pygame.event.get([pygame.KEYDOWN]):
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r and self.gameOver == True:
-                        # self.running = False
-                        initGame()
+                    if event.key == event.key == pygame.K_r:
+                        self.moving = True
+                        if const.PROFILEMODE:
+                            self.pr.enable()  # Start the profiler
+                        self.run()  # The method you want to profile
                     if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                         pygame.quit() #quit the game
                         exit() #sys.exit game
-            self.screen.blit(self.gameOver_menu.image,
-                                (self.gameOver_menu.rect.x, self.gameOver_menu.rect.y))
             pygame.display.update()
-            sleep(0.5)
-        
+                    #     if const.PROFILEMODE:
+                    #         self.pr.enable()  # Start the profiler
+                    #     self.run()  # The method you want to profile
+                    import const
+                    if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                        pygame.quit() #quit the game
+                        exit() #sys.exit game
+            pygame.display.update()
+            sleep(0.2)
+
         
 def initGame():
     pygame.init()
