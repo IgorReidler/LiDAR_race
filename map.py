@@ -23,15 +23,15 @@ class Tile(pygame.sprite.Sprite):
 # tile_height = 400
 # Define your maps
 map_plan = [
-        [1,2,2,2,3,4],
-        [1,2,2,2,3,4],
-        [1,2,2,2,3,4],
-        [1,2,2,2,3,4],
+        [random.randrange(1,3),4,4,4,5,random.randrange(6,8)],
+        [random.randrange(1,3),4,4,4,5,random.randrange(6,8)],
+        [random.randrange(1,3),4,4,4,5,random.randrange(6,8)],
+        [random.randrange(1,3),4,4,4,5,random.randrange(6,8)],
 ]
 
 # map_2 = map_1
 
 # Load your images
-map_cam_tiles = [r'media/grass_left.png', r'media/lane_marks.png', r'media/lane_empty.png',r'media/grass_right.png']
-map_lidar_tiles = [r'media/grass_left_lidar.png', r'media/lane_marks_lidar.png', r'media/lane_empty.png',r'media/grass_right_lidar.png']
+map_cam_tiles = [r'media/grass_left.png',r'media/grass_left.png',r'media/grass_left.png', r'media/lane_marks.png', r'media/lane_empty.png',r'media/grass_right.png',r'media/grass_right.png',r'media/grass_right.png']
+map_lidar_tiles = [r'media/grass_left_1_lidar.png', r'media/grass_left_2_lidar.png',r'media/grass_left_3_lidar.png',r'media/lane_marks_lidar.png', r'media/lane_empty_lidar.png',r'media/grass_right_1_lidar.png',r'media/grass_right_2_lidar.png',r'media/grass_right_2_lidar.png']
 tree_images = [r'media/OPENGAMEART_TREE1.png']

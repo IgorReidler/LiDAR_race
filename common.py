@@ -5,16 +5,16 @@ from datetime import datetime
 
 def gameOver(screen,obstaclesPassed):
     # Draw "Game over" text
-    font1 = pygame.font.Font('freesansbold.ttf', 32)
-    font2 = pygame.font.Font('freesansbold.ttf', 48)
-    text1 = font1.render('Game Over', True, (255, 0, 0))
-    text2 = font2.render('You passed '+str(obstaclesPassed)+' true positives!', True, (255, 0, 0))
-    textRect1 = text1.get_rect()
-    textRect2 = text2.get_rect()
-    textRect1.center = (600, 200)
-    textRect2.center = (600, 250)
-    screen.blit(text1, textRect1)
-    screen.blit(text2, textRect2)
+    # font1 = pygame.font.Font('freesansbold.ttf', 48)
+    # font2 = pygame.font.Font('freesansbold.ttf', 32)
+    # text1 = font1.render('Game Over', True, (255, 0, 0))
+    # text2 = font2.render('You passed '+str(obstaclesPassed)+' true positives!', True, (255, 0, 0))
+    # textRect1 = text1.get_rect()
+    # textRect2 = text2.get_rect()
+    # textRect1.center = (600, 200)
+    # textRect2.center = (600, 250)
+    # screen.blit(text1, textRect1)
+    # screen.blit(text2, textRect2)
     # Update the display
     pygame.display.flip()
     #stop the music
@@ -22,7 +22,7 @@ def gameOver(screen,obstaclesPassed):
     # Load and play sound
     gameOverSound = pygame.mixer.Sound('media/game-over-38511.mp3')
     gameOverSound.play()
-    time.sleep(4)
+    # time.sleep(1)
 
 def write_high_score(playerName, highScore): #This function was entirely written by bing (GPT v4.0 on 27 Apr 2023)
     if not os.path.exists('highscore.txt'):
@@ -53,3 +53,15 @@ def speedChange(speed_delta,fps,speed_factor, road_speed, vehicle_speed_delta_fr
     speedChangeSound.play()
 
     return speed_factor, road_speed, vehicle_speed_delta_from, vehicle_speed_delta_to
+
+def drawText(screen,text,position):
+    if position not in ['center', 'side']: #validating position input
+        raise ValueError("Position must be either 'center' or 'side'")
+    if position == 'center':
+        positionArgument=(screen.get_width()/2, screen.get_height()/2)
+    if position == 'side':
+        positionArgument=(screen.get_width()/4, screen.get_height()/4)
+    font = pygame.font.Font(None, 72)  # Create a Font object with the default font and a size of 72
+    text_surface = font.render(text, True, (255, 255, 255))  # Create a white Surface with the text
+    text_rect = text_surface.get_rect(center=positionArgument)  # Get the rectangle of the text surface and set its center to the center of the screen
+    screen.blit(text_surface, text_rect)  # Draw the text Surface onto the screen at the calculated position
