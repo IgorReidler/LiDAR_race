@@ -21,14 +21,12 @@
 #THE SOFTWARE.
 
 #TODO:
-#Money concept
-#BMW, AUDI, VWBUZZ
-#sound when passing a car
-#iOne, iTwo, Competitor
-#Car turns at an angle
+#Add driving assistance = auto break
+#Add autonomous driving - avoiding obstacles
 #Car steering speed according to speed
-
 #Purchase menu
+# [backlog]
+# Car turns at an angle - very hard to calculate collisions
 
 #map_plan is randomized only once per game, in map.py. Randomize every draw.
 #add obstacles: EU pallette
@@ -61,6 +59,8 @@ class Game:
         self.moving = False
         
         self.highScore=0
+        self.mainMessage=None
+        self.mainMessageFrameCounter=0
         # Create your sprite groups
         self.map_tiles_cam = pygame.sprite.Group()
         self.map_tiles_lidar = pygame.sprite.Group()
@@ -80,7 +80,7 @@ class Game:
         self.fadeAlpha=0 # used to calculate fadeAlphaMax 
         self.player_angle = 0
         self.player_angle_change = 0
-        self.lidarMask = pygame.image.load(const.LIDARMASKPATH).convert()
+        self.lidarMask = pygame.image.load(const.LIDARMASKPATH_ione).convert()
         self.lidarMask600 = pygame.transform.scale(self.lidarMask, (900,600))
         self.lidarMask600_rect=(150,0)
         # fade to black surface
@@ -192,6 +192,21 @@ class Game:
                             pygame.mixer.music.unpause()
                         else:
                             pygame.mixer.music.pause()
+                    elif (event.key == pygame.K_1) & (self.lidar==True):
+                        self.lidarMask = pygame.image.load(const.LIDARMASKPATH_ione).convert()
+                        self.lidarMask600 = pygame.transform.scale(self.lidarMask, (900,600))
+                        #write on screen
+                        self.mainMessage='Innoviz iOne'
+                    elif (event.key == pygame.K_2) & (self.lidar==True):
+                        self.lidarMask = pygame.image.load(const.LIDARMASKPATH_itwo).convert()
+                        self.lidarMask600 = pygame.transform.scale(self.lidarMask, (900,600))
+                        self.mainMessage='Innoviz iTwo'
+                    elif (event.key == pygame.K_3) & (self.lidar==True):
+                        self.lidarMask = pygame.image.load(const.LIDARMASKPATH_competitor).convert()
+                        self.lidarMask600 = pygame.transform.scale(self.lidarMask, (900,600))
+                        self.mainMessage='Competitor LiDAR'
+
+
 
             keys = pygame.key.get_pressed()
                 # steer the player car with left and right arrows
@@ -215,6 +230,7 @@ class Game:
                     self.player.rect.centerx-const.ARCWIDTH/2-600, 0, 600, 600))
                 pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(
                     self.player.rect.centerx+const.ARCWIDTH/2, 0, 600, 600))
+                # self.mainMessage='LiDAR Enabled'
 
             frameCount += 1  # for darkening
             # if fadeAlpha > 100:
@@ -270,6 +286,13 @@ class Game:
             # self.screen.blit(text_alpha, (70, 100))
             # self.screen.blit(text_speedFactor, (70, 130))
             self.screen.blit(text_score, (70, 100))
+            # if mainMessage is not equal to none, display it
+            if (self.mainMessage != None) & (self.mainMessageFrameCounter<const.MAINMESSAGETIME): #changing mainMessage from None to any text draws it here
+                common.drawText(self.screen,self.mainMessage,'center')
+                self.mainMessageFrameCounter+=1
+            elif self.mainMessage != None:
+                self.mainMessageFrameCounter=0
+                self.mainMessage=None
             pygame.display.update()
             clock.tick(const.FPS)
     
@@ -286,7 +309,7 @@ class Game:
                         self.run()  # The method you want to profile
                     if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
                         pygame.quit() #quit the game
-                        exit() #sys.exit game
+                        exit() #sys.exit game                        
             pygame.display.update()
             sleep(0.2)
     
@@ -305,6 +328,19 @@ class Game:
                         pygame.quit() #quit the game
                         exit() #sys.exit game
             pygame.display.update()
+            sleep(0.2)
+    
+    def gameOverMenu(self):
+        self.prepareScreen()
+        self.screen.blit(self.gameOver_menu.image,(self.start_menu.rect.x, self.start_menu.rect.y))
+        while True:
+            for event in pygame.event.get([pygame.KEYDOWN]):
+                if event.type == pygame.KEYDOWN:
+                    if event.key == K_r:
+                        self.__init__()  # Re-initialize the game
+                        self.run()  # Start the game
+                    # if event.key == pygame.K_SPACE or event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP or event.key == pygame.K_r:
+                    #     self.moving = True
                     #     if const.PROFILEMODE:
                     #         self.pr.enable()  # Start the profiler
                     #     self.run()  # The method you want to profile
