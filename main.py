@@ -25,6 +25,7 @@
 #Add autonomous driving - avoiding obstacles
 #Car steering speed according to speed
 #Purchase menu
+#darkening after restart
 # [backlog]
 # Car turns at an angle - very hard to calculate collisions
 
@@ -250,7 +251,7 @@ class Game:
             
             if const.GODMODE == False:
                 if pygame.sprite.spritecollide(self.player, self.all_obstacles_list, False, pygame.sprite.collide_rect) or self.grassLeft_obstacle_rect.collidepoint(self.player.rect.x, self.player.rect.y) or self.grassRight_obstacle_rect.collidepoint(self.player.rect.x+self.player.rect.width-5, self.player.rect.y):
-                    self.collide()
+                    common.collide(self)
                 collisions = pygame.sprite.groupcollide(
                     self.all_obstacles_list, self.all_obstacles_list, False, False)
                 if const.obstaclesCollideKillFlag:
@@ -268,12 +269,12 @@ class Game:
             self.prev_player_x = self.player.rect.x
         pygame.quit() #quit the game
         exit() #sys.exit game
-    def collide(self):
-        common.write_high_score(self.playerName,self.score)
-        common.gameOver(self.screen,self.score)
-        self.moving = False
-        self.gameOver = True
-        self.gameOverMenu()
+    # def collide(self):
+    #     common.write_high_score(self.playerName,self.score)
+    #     common.gameOver(self.screen,self.score)
+    #     self.moving = False
+    #     self.gameOver = True
+    #     self.gameOverMenu()
     def showText(self,clock):
             # text display
             font = pygame.font.Font(None, 30)

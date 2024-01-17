@@ -2,6 +2,7 @@ import pygame
 import time
 import os
 from datetime import datetime
+import const
 
 def gameOver(screen,obstaclesPassed):
     # Draw "Game over" text
@@ -65,3 +66,30 @@ def drawText(screen,text,position):
     text_surface = font.render(text, True, (255, 255, 255))  # Create a white Surface with the text
     text_rect = text_surface.get_rect(center=positionArgument)  # Get the rectangle of the text surface and set its center to the center of the screen
     screen.blit(text_surface, text_rect)  # Draw the text Surface onto the screen at the calculated position
+def collide(self):
+        write_high_score(self.playerName,self.score)
+        gameOver(self.screen,self.score)
+        self.moving = False
+        self.gameOver = True
+        self.gameOverMenu()
+def showText(self,clock):
+        # text display
+        font = pygame.font.Font(None, 30)
+        text_fps = font.render('FPS: ' + str(int(clock.get_fps())), 1, (255, 0, 0))
+        text_alpha = font.render('ALPHA: ' + str(int(self.fadeAlpha)), 1, (0, 0, 255))
+        # text_speedFactor = font.render('NEED4SPEED', 1, (255, 255, 255))
+
+        text_score = font.render('SCORE: ' + str(self.score), 1, (255, 255, 255))
+        self.screen.blit(text_fps, (70, 70))
+        # self.screen.blit(text_alpha, (70, 100))
+        # self.screen.blit(text_speedFactor, (70, 130))
+        self.screen.blit(text_score, (70, 100))
+        # if mainMessage is not equal to none, display it
+        if (self.mainMessage != None) & (self.mainMessageFrameCounter<const.MAINMESSAGETIME): #changing mainMessage from None to any text draws it here
+            drawText(self.screen,self.mainMessage,'center')
+            self.mainMessageFrameCounter+=1
+        elif self.mainMessage != None:
+            self.mainMessageFrameCounter=0
+            self.mainMessage=None
+        pygame.display.update()
+        clock.tick(const.FPS)
